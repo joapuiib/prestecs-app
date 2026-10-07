@@ -6,7 +6,6 @@
     <string name="action_back">Tornar</string>
     <string name="action_more">Més opcions</string>
     <string name="action_log_out">Tanca la sessió</string>
-    <string name="placeholder_coming_soon">Pròximament</string>
 
     <string name="environment_prod">Producció</string>
     <string name="environment_staging">Proves</string>
@@ -45,4 +44,13 @@
     <string name="loans_empty_filtered">No hi ha cap préstec amb aquest filtre.</string>
     <string name="loans_lent_at">Préstec: %1$s</string>
     <string name="loans_returned_at">Devolució: %1$s</string>
+    <string name="scanner_camera_unavailable">No s\'ha pogut obrir la càmera. Pots escriure el codi a mà.</string>
+    <string name="scanner_torch">Llanterna</string>
+    <string name="scanner_permission_rationale">Cal accés a la càmera per a llegir els codis QR dels portàtils i dels carnets.</string>
+    <string name="scanner_permission_allow">Permet la càmera</string>
+    <string name="scanner_permission_open_settings">Obre la configuració</string>
+    <string name="scanner_type_code">Escriu el codi</string>
+    <string name="scanner_code_label">Codi</string>
+    <string name="scanner_manual_add">Afegeix</string>
+    <string name="scanner_trial_hint">Prova de l\'escàner: els codis llegits encara no es registren.</string>
 </resources>

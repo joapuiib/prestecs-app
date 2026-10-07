@@ -95,6 +95,16 @@ android {
     }
 }
 
+androidComponents {
+    // The GitHub APK ships every ABI in one file, and ML Kit's bundled scanner
+    // is ~5 MB of native code per ABI. Real phones are ARM, so drop x86 there.
+    // Debug builds keep x86 for emulators; Play delivers one ABI per device.
+    val githubRelease = selector().withFlavor("distribution" to "github").withBuildType("release")
+    onVariants(githubRelease) { variant ->
+        variant.packaging.jniLibs.excludes.addAll("lib/x86/**", "lib/x86_64/**")
+    }
+}
+
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
@@ -126,6 +136,13 @@ dependencies {
     implementation(libs.okhttp)
     debugImplementation(libs.okhttp.logging.interceptor)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.compose)
+    implementation(libs.androidx.camera.mlkit.vision)
+    // Bundled model: works offline, no Play Services download on first use.
+    implementation(libs.mlkit.barcode.scanning)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

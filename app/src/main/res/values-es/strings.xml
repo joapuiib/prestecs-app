@@ -6,7 +6,6 @@
     <string name="action_back">Volver</string>
     <string name="action_more">Más opciones</string>
     <string name="action_log_out">Cerrar sesión</string>
-    <string name="placeholder_coming_soon">Próximamente</string>
 
     <string name="environment_prod">Producción</string>
     <string name="environment_staging">Pruebas</string>
@@ -46,4 +45,13 @@
     <string name="loans_empty_filtered">No hay ningún préstamo con este filtro.</string>
     <string name="loans_lent_at">Préstamo: %1$s</string>
     <string name="loans_returned_at">Devolución: %1$s</string>
+    <string name="scanner_camera_unavailable">No se ha podido abrir la cámara. Puedes escribir el código a mano.</string>
+    <string name="scanner_torch">Linterna</string>
+    <string name="scanner_permission_rationale">Hace falta acceso a la cámara para leer los códigos QR de los portátiles y de los carnés.</string>
+    <string name="scanner_permission_allow">Permitir la cámara</string>
+    <string name="scanner_permission_open_settings">Abrir la configuración</string>
+    <string name="scanner_type_code">Escribir el código</string>
+    <string name="scanner_code_label">Código</string>
+    <string name="scanner_manual_add">Añadir</string>
+    <string name="scanner_trial_hint">Prueba del escáner: los códigos leídos aún no se registran.</string>
 </resources>

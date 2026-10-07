@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Préstecs</string>
+    <string name="new_loan">Nou préstec</string>
+    <string name="new_return">Nova devolució</string>
+    <string name="action_back">Tornar</string>
+    <string name="placeholder_coming_soon">Pròximament</string>
+</resources>

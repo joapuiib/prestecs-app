@@ -10,7 +10,7 @@ adapted to a phone camera instead of a USB/Bluetooth QR scanner.
 | Topic | Choice | Notes |
 |---|---|---|
 | Language / UI | Kotlin, Jetpack Compose, Material 3, single Activity | Navigation Compose |
-| Min / target SDK | minSdk 26, target/compile 36 | |
+| Min / target SDK | minSdk 26, target/compile 37 (Android 17) | |
 | Architecture | MVVM + unidirectional state (`StateFlow<UiState>`), repository layer | Single `:app` module to start; split later if it grows |
 | DI | Hilt | |
 | Networking | Retrofit + OkHttp + kotlinx.serialization | One interceptor adds `Authorization: Bearer` |

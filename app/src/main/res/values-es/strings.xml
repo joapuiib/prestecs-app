@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Préstamos</string>
+    <string name="new_loan">Nuevo préstamo</string>
+    <string name="new_return">Nueva devolución</string>
+    <string name="action_back">Volver</string>
+    <string name="placeholder_coming_soon">Próximamente</string>
+</resources>

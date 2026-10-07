@@ -58,12 +58,20 @@ Hilt · Coroutines/Flow.
 
 ## Building
 
-Requirements: Android Studio (latest stable), JDK 17, Android SDK 36.
+Requirements: JDK 17+ and the Android SDK (platform 37). Android Studio
+(latest stable) provides both; on the command line, point `local.properties`
+to the SDK (`sdk.dir=/path/to/Android/Sdk`) or set `ANDROID_HOME`.
+
+The app has two distribution flavors: `github` (signed APK published on GitHub
+Releases) and `play` (bundle for Google Play).
 
 ```sh
-./gradlew assembleDebug        # build debug APK
-./gradlew test                 # unit tests
-./gradlew connectedCheck       # instrumented tests (device/emulator needed)
+./gradlew assembleGithubDebug      # debug APK → app/build/outputs/apk/github/debug/
+./gradlew testGithubDebugUnitTest  # unit tests
+./gradlew lintGithubDebug          # lint
+./gradlew connectedGithubDebugAndroidTest  # instrumented tests (device/emulator needed)
 ```
 
-Debug builds point to staging by default; release builds point to production.
+Debug builds install as `com.fpmislata.prestecs.debug`, next to the release app.
+Release versions come from the git tag: `./gradlew -PappVersion=1.2.3 ...`
+(version code `10203`).

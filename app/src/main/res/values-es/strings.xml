@@ -51,9 +51,7 @@
     <string name="scanner_permission_allow">Permitir la cámara</string>
     <string name="scanner_permission_open_settings">Abrir la configuración</string>
     <string name="scanner_type_code">Escribir el código</string>
-    <string name="scanner_code_label">Código</string>
     <string name="scanner_manual_add">Añadir</string>
-    <string name="scanner_trial_hint">Prueba del escáner: los códigos leídos aún no se registran.</string>
     <string name="action_confirm">Confirmar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_discard">Descartar</string>
@@ -95,4 +93,31 @@
     <string name="result_portatil_format">Código de portátil no válido: %1$s</string>
     <string name="result_batch_duplicate">%1$s aparece más de una vez.</string>
     <string name="result_already_active">%1$s ya tiene un préstamo activo.</string>
+    <string name="no_active_loan">%1$s no tiene ningún préstamo activo.</string>
+    <string name="scan_return_found">%1$s, prestado a %2$s.</string>
+    <string name="return_batch_title" tools:ignore="PluralsCandidate">Devoluciones: %1$d/%2$d</string>
+    <string name="return_not_found">No tiene ningún préstamo activo</string>
+    <string name="return_save">Devolver (%1$d)</string>
+    <plurals name="return_confirm_text">
+        <item quantity="one">Se registrará la devolución de %d portátil. ¿Continuar?</item>
+        <item quantity="many">Se registrará la devolución de %d portátiles. ¿Continuar?</item>
+        <item quantity="other">Se registrará la devolución de %d portátiles. ¿Continuar?</item>
+    </plurals>
+    <plurals name="return_excluded_hint">
+        <item quantity="one">%d portátil no se enviará: no tiene ningún préstamo activo o no se ha podido comprobar.</item>
+        <item quantity="many">%d portátiles no se enviarán: no tienen ningún préstamo activo o no se han podido comprobar.</item>
+        <item quantity="other">%d portátiles no se enviarán: no tienen ningún préstamo activo o no se han podido comprobar.</item>
+    </plurals>
+    <string name="return_discard_title">¿Descartar las devoluciones?</string>
+    <string name="return_discard_text">Los portátiles escaneados aún no se han devuelto.</string>
+    <string name="return_failed_hint">Los portátiles que han fallado siguen en la lista.</string>
+
+    <plurals name="result_devolucio_success">
+        <item quantity="one">Se ha registrado la devolución de %d portátil.</item>
+        <item quantity="many">Se ha registrado la devolución de %d portátiles.</item>
+        <item quantity="other">Se ha registrado la devolución de %d portátiles.</item>
+    </plurals>
+    <string name="result_devolucio_empty">No se ha enviado ningún portátil.</string>
+    <string name="result_too_long">Código demasiado largo: %1$s</string>
+    <string name="result_already_returned">%1$s ya se había devuelto.</string>
 </resources>

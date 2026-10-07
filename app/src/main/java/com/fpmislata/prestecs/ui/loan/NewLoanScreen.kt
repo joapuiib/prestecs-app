@@ -7,13 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -21,14 +18,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,27 +40,20 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fpmislata.prestecs.R
 import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
-import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
+import com.fpmislata.prestecs.ui.batch.ConfirmDialog
+import com.fpmislata.prestecs.ui.batch.OutcomeCard
+import com.fpmislata.prestecs.ui.batch.SaveBar
+import com.fpmislata.prestecs.ui.batch.ScanEventsFeedback
+import com.fpmislata.prestecs.ui.batch.SuccessColor
 import com.fpmislata.prestecs.ui.components.message
-import com.fpmislata.prestecs.ui.components.text
 import com.fpmislata.prestecs.ui.scanner.ScanPanel
-import com.fpmislata.prestecs.ui.scanner.rememberScanFeedback
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
 
 @Composable
 fun NewLoanScreen(onBack: () -> Unit, viewModel: NewLoanViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val feedback = rememberScanFeedback()
-
-    LaunchedEffect(viewModel) {
-        viewModel.events.collect { event ->
-            when (event) {
-                ScanEvent.ACCEPTED -> feedback.accepted()
-                ScanEvent.REJECTED -> feedback.rejected()
-            }
-        }
-    }
+    ScanEventsFeedback(viewModel.events)
 
     NewLoanContent(
         state = state,
@@ -112,9 +99,12 @@ fun NewLoanContent(
             )
         },
         bottomBar = {
-            SaveBar(count = state.rows.size, enabled = state.canSubmit, isSubmitting = state.isSubmitting) {
-                confirmSubmit = true
-            }
+            SaveBar(
+                label = stringResource(R.string.loan_save, state.rows.size),
+                enabled = state.canSubmit,
+                isSubmitting = state.isSubmitting,
+                onSave = { confirmSubmit = true },
+            )
         },
     ) { padding ->
         Column(
@@ -135,42 +125,36 @@ fun NewLoanContent(
                 modifier = Modifier.fillMaxWidth(),
             )
             state.message?.let { ScanMessageText(it) }
-            state.outcome?.let { OutcomeCard(it) }
+            state.outcome?.let { outcome ->
+                OutcomeCard(outcome, failedHint = stringResource(R.string.loan_failed_rows_hint))
+            }
             BatchList(rows = state.rows, onRemoveRow = onRemoveRow, modifier = Modifier.weight(1f))
         }
     }
 
     if (confirmSubmit) {
-        AlertDialog(
-            onDismissRequest = { confirmSubmit = false },
-            title = { Text(stringResource(R.string.action_confirm)) },
-            text = { Text(pluralStringResource(R.plurals.loan_confirm_text, state.rows.size, state.rows.size)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmSubmit = false
-                    onSubmit()
-                }) { Text(stringResource(R.string.action_confirm)) }
+        ConfirmDialog(
+            title = stringResource(R.string.action_confirm),
+            text = pluralStringResource(R.plurals.loan_confirm_text, state.rows.size, state.rows.size),
+            confirmLabel = stringResource(R.string.action_confirm),
+            onConfirm = {
+                confirmSubmit = false
+                onSubmit()
             },
-            dismissButton = {
-                TextButton(onClick = { confirmSubmit = false }) { Text(stringResource(R.string.action_cancel)) }
-            },
+            onDismiss = { confirmSubmit = false },
         )
     }
 
     if (confirmDiscard) {
-        AlertDialog(
-            onDismissRequest = { confirmDiscard = false },
-            title = { Text(stringResource(R.string.loan_discard_title)) },
-            text = { Text(stringResource(R.string.loan_discard_text)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    confirmDiscard = false
-                    onBack()
-                }) { Text(stringResource(R.string.action_discard)) }
+        ConfirmDialog(
+            title = stringResource(R.string.loan_discard_title),
+            text = stringResource(R.string.loan_discard_text),
+            confirmLabel = stringResource(R.string.action_discard),
+            onConfirm = {
+                confirmDiscard = false
+                onBack()
             },
-            dismissButton = {
-                TextButton(onClick = { confirmDiscard = false }) { Text(stringResource(R.string.action_cancel)) }
-            },
+            onDismiss = { confirmDiscard = false },
         )
     }
 }
@@ -273,36 +257,6 @@ private fun ScanMessageText(message: ScanMessage) {
 }
 
 @Composable
-private fun OutcomeCard(outcome: SubmitOutcome) {
-    OutlinedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            when (outcome) {
-                is SubmitOutcome.Failed -> Text(outcome.error.message(), color = MaterialTheme.colorScheme.error)
-                is SubmitOutcome.Saved -> {
-                    outcome.messages.forEach { message ->
-                        Text(
-                            message.text(),
-                            color = if (message.severity == Severity.SUCCESS) {
-                                SuccessColor
-                            } else {
-                                MaterialTheme.colorScheme.error
-                            },
-                        )
-                    }
-                    if (!outcome.success) {
-                        Text(
-                            stringResource(R.string.loan_failed_rows_hint),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun BatchList(rows: List<PrestecRowDto>, onRemoveRow: (String) -> Unit, modifier: Modifier = Modifier) {
     Column(modifier) {
         Text(
@@ -329,25 +283,6 @@ private fun BatchList(rows: List<PrestecRowDto>, onRemoveRow: (String) -> Unit, 
         }
     }
 }
-
-@Composable
-private fun SaveBar(count: Int, enabled: Boolean, isSubmitting: Boolean, onSave: () -> Unit) {
-    Surface(tonalElevation = 3.dp) {
-        Button(
-            onClick = onSave,
-            enabled = enabled,
-            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(16.dp),
-        ) {
-            if (isSubmitting) {
-                CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-            } else {
-                Text(stringResource(R.string.loan_save, count))
-            }
-        }
-    }
-}
-
-private val SuccessColor = Color(0xFF198754)
 
 @Preview(showBackground = true)
 @Composable

@@ -5,12 +5,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.core.network.ApiResult
-import com.fpmislata.prestecs.data.api.dto.BatchMessageDto
 import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
-import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.domain.PortatilCode
 import com.fpmislata.prestecs.domain.StudentQr
+import com.fpmislata.prestecs.ui.batch.ScanEvent
+import com.fpmislata.prestecs.ui.batch.SubmitOutcome
+import com.fpmislata.prestecs.ui.batch.failedItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -75,15 +76,6 @@ sealed interface ScanMessage {
     }
 }
 
-/** What the API answered to the last save. */
-sealed interface SubmitOutcome {
-    /** All rows, or only some (`success == false`): see [messages]. */
-    data class Saved(val success: Boolean, val messages: List<BatchMessageDto>) : SubmitOutcome
-
-    /** Nothing was saved. */
-    data class Failed(val error: ApiError) : SubmitOutcome
-}
-
 data class NewLoanUiState(
     val step: LoanStep = LoanStep.WaitingPortatil,
     val rows: List<PrestecRowDto> = emptyList(),
@@ -94,9 +86,6 @@ data class NewLoanUiState(
     val canScan: Boolean get() = step !is LoanStep.CheckingPortatil && !isSubmitting
     val canSubmit: Boolean get() = rows.isNotEmpty() && step !is LoanStep.CheckingPortatil && !isSubmitting
 }
-
-/** For the scan sound and vibration. One-shot: each scan beeps once. */
-enum class ScanEvent { ACCEPTED, REJECTED }
 
 /**
  * Loan batch: scan a laptop, check it's not lent, scan the student card,
@@ -144,7 +133,7 @@ class NewLoanViewModel @Inject constructor(
             when (val result = repository.create(sent)) {
                 is ApiResult.Success -> {
                     val response = result.value
-                    setRows(failedRows(sent, response.messages))
+                    setRows(failedItems(sent, response.messages) { it.portatil })
                     _state.update {
                         it.copy(
                             isSubmitting = false,
@@ -221,16 +210,3 @@ class NewLoanViewModel @Inject constructor(
     }
 }
 
-/**
- * Rows the API didn't register, to keep them in the batch so they can be fixed
- * or removed. Failures point at a row by laptop code or by its 1-based
- * position among the rows sent.
- */
-internal fun failedRows(sent: List<PrestecRowDto>, messages: List<BatchMessageDto>): List<PrestecRowDto> {
-    val failures = messages.filter { it.severity == Severity.DANGER }
-    val failedPortatils = failures.mapNotNullTo(HashSet()) { it.portatil }
-    val failedPositions = failures.mapNotNullTo(HashSet()) { it.row }
-    return sent.filterIndexed { index, row ->
-        row.portatil in failedPortatils || (index + 1) in failedPositions
-    }
-}

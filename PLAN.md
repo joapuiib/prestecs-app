@@ -145,7 +145,7 @@ Each milestone ends in a working, reviewable state (one PR / commit series each)
 5. **New loan flow** — ViewModel state machine (WaitingPortatil → CheckingPortatil →
    WaitingEstudiant), batch, confirm, submit, 422 handling. Unit-test the state machine.
 6. **New return flow** — parallel lookups, exclusion of not-found rows, submit.
-7. **Polish** — Spanish strings, accessibility (TalkBack labels, contrast), dark
+7. **Polish** — ktlint formatting (wrap the long lines left so far, then keep it in the build), Spanish strings, accessibility (TalkBack labels, contrast), dark
    theme, app icon, R8 rules, release signing config, README update.
 8. **Release** — keystore generation and backup, GitHub Actions workflow on
    tag `v*`: test → build `githubRelease` APK + `playRelease` AAB → sign → create

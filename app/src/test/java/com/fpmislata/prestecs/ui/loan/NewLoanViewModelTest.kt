@@ -11,6 +11,8 @@ import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.testing.FakePrestecsRepository
 import com.fpmislata.prestecs.testing.MainDispatcherRule
+import com.fpmislata.prestecs.ui.batch.ScanEvent
+import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

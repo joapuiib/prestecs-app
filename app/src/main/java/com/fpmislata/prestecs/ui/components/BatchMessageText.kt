@@ -24,6 +24,11 @@ fun BatchMessageDto.text(): String {
         "prestec_portatil_format" -> stringResource(R.string.result_portatil_format, portatil)
         "prestec_batch_duplicate" -> stringResource(R.string.result_batch_duplicate, portatil)
         "prestec_already_active" -> stringResource(R.string.result_already_active, portatil)
+        "devolucio_success" -> pluralStringResource(R.plurals.result_devolucio_success, count, count)
+        "devolucio_empty" -> stringResource(R.string.result_devolucio_empty)
+        "devolucio_too_long" -> stringResource(R.string.result_too_long, portatil)
+        "devolucio_not_found" -> stringResource(R.string.no_active_loan, portatil)
+        "devolucio_already_returned" -> stringResource(R.string.result_already_returned, portatil)
         else -> message
     }
 }

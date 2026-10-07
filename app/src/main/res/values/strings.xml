@@ -50,9 +50,7 @@
     <string name="scanner_permission_allow">Permet la càmera</string>
     <string name="scanner_permission_open_settings">Obre la configuració</string>
     <string name="scanner_type_code">Escriu el codi</string>
-    <string name="scanner_code_label">Codi</string>
     <string name="scanner_manual_add">Afegeix</string>
-    <string name="scanner_trial_hint">Prova de l\'escàner: els codis llegits encara no es registren.</string>
     <string name="action_confirm">Confirma</string>
     <string name="action_cancel">Cancel·la</string>
     <string name="action_discard">Descarta</string>
@@ -92,4 +90,28 @@
     <string name="result_portatil_format">Codi de portàtil invàlid: %1$s</string>
     <string name="result_batch_duplicate">%1$s apareix més d\'una vegada.</string>
     <string name="result_already_active">%1$s ja té un préstec actiu.</string>
+    <string name="no_active_loan">%1$s no té cap préstec actiu.</string>
+    <string name="scan_return_found">%1$s, prestat a %2$s.</string>
+    <string name="return_batch_title" tools:ignore="PluralsCandidate">Devolucions: %1$d/%2$d</string>
+    <string name="return_not_found">No té cap préstec actiu</string>
+    <string name="return_save">Retorna (%1$d)</string>
+    <plurals name="return_confirm_text">
+        <item quantity="one">Es registrarà la devolució de %d portàtil. Continuar?</item>
+        <item quantity="other">Es registrarà la devolució de %d portàtils. Continuar?</item>
+    </plurals>
+    <plurals name="return_excluded_hint">
+        <item quantity="one">%d portàtil no s\'enviarà: no té cap préstec actiu o no s\'ha pogut comprovar.</item>
+        <item quantity="other">%d portàtils no s\'enviaran: no tenen cap préstec actiu o no s\'han pogut comprovar.</item>
+    </plurals>
+    <string name="return_discard_title">Descartar les devolucions?</string>
+    <string name="return_discard_text">Els portàtils escanejats encara no s\'han retornat.</string>
+    <string name="return_failed_hint">Els portàtils que han fallat continuen a la llista.</string>
+
+    <plurals name="result_devolucio_success">
+        <item quantity="one">S\'ha registrat la devolució de %d portàtil.</item>
+        <item quantity="other">S\'ha registrat la devolució de %d portàtils.</item>
+    </plurals>
+    <string name="result_devolucio_empty">No s\'ha enviat cap portàtil.</string>
+    <string name="result_too_long">Codi massa llarg: %1$s</string>
+    <string name="result_already_returned">%1$s ja s\'havia retornat.</string>
 </resources>

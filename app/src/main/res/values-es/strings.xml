@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Préstamos</string>
     <string name="new_loan">Nuevo préstamo</string>
     <string name="new_return">Nueva devolución</string>
@@ -54,4 +54,45 @@
     <string name="scanner_code_label">Código</string>
     <string name="scanner_manual_add">Añadir</string>
     <string name="scanner_trial_hint">Prueba del escáner: los códigos leídos aún no se registran.</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_discard">Descartar</string>
+
+    <string name="loan_step_portatil">Portátil</string>
+    <string name="loan_step_estudiant">Estudiante</string>
+    <string name="loan_scan_portatil">Escanea el portátil</string>
+    <string name="loan_scan_estudiant">Escanea el carné</string>
+    <string name="loan_cancel_pending">Cancelar este portátil</string>
+    <string name="loan_batch_title">Préstamos por registrar: %1$d/%2$d</string>
+    <string name="loan_remove_row">Eliminar %1$s</string>
+    <string name="loan_save">Guardar (%1$d)</string>
+    <plurals name="loan_confirm_text">
+        <item quantity="one">Se registrará %d préstamo. ¿Continuar?</item>
+        <item quantity="many">Se registrarán %d préstamos. ¿Continuar?</item>
+        <item quantity="other">Se registrarán %d préstamos. ¿Continuar?</item>
+    </plurals>
+    <string name="loan_discard_title">¿Descartar los préstamos?</string>
+    <string name="loan_discard_text">Los préstamos escaneados aún no se han guardado.</string>
+    <string name="loan_failed_rows_hint">Los préstamos que han fallado siguen en la lista.</string>
+
+    <string name="scan_portatil_available">%1$s disponible. Escanea el carné del estudiante.</string>
+    <string name="scan_loan_added">Añadido: %1$s → %2$s</string>
+    <string name="scan_invalid_code">Código de portátil no válido: %1$s</string>
+    <string name="scan_too_long">Código demasiado largo (máximo 100 caracteres).</string>
+    <string name="scan_already_in_batch">%1$s ya está en la lista.</string>
+    <string name="scan_already_lent">%1$s ya está prestado a %2$s.</string>
+    <string name="scan_student_is_laptop">Eso es el portátil: escanea el carné del estudiante.</string>
+    <string name="scan_batch_full" tools:ignore="PluralsCandidate">Máximo %1$d por lote: guarda antes de continuar.</string>
+
+    <plurals name="result_prestec_success">
+        <item quantity="one">Se ha registrado %d préstamo.</item>
+        <item quantity="many">Se han registrado %d préstamos.</item>
+        <item quantity="other">Se han registrado %d préstamos.</item>
+    </plurals>
+    <string name="result_prestec_empty">No se ha enviado ningún préstamo.</string>
+    <string name="result_row_incomplete" tools:ignore="PluralsCandidate">Fila %1$d incompleta: hacen falta el portátil y el estudiante.</string>
+    <string name="result_row_too_long" tools:ignore="PluralsCandidate">Fila %1$d: hay valores demasiado largos.</string>
+    <string name="result_portatil_format">Código de portátil no válido: %1$s</string>
+    <string name="result_batch_duplicate">%1$s aparece más de una vez.</string>
+    <string name="result_already_active">%1$s ya tiene un préstamo activo.</string>
 </resources>

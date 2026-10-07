@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Préstecs</string>
     <string name="new_loan">Nou préstec</string>
     <string name="new_return">Nova devolució</string>
@@ -53,4 +53,43 @@
     <string name="scanner_code_label">Codi</string>
     <string name="scanner_manual_add">Afegeix</string>
     <string name="scanner_trial_hint">Prova de l\'escàner: els codis llegits encara no es registren.</string>
+    <string name="action_confirm">Confirma</string>
+    <string name="action_cancel">Cancel·la</string>
+    <string name="action_discard">Descarta</string>
+
+    <string name="loan_step_portatil">Portàtil</string>
+    <string name="loan_step_estudiant">Estudiant</string>
+    <string name="loan_scan_portatil">Escaneja el portàtil</string>
+    <string name="loan_scan_estudiant">Escaneja el carnet</string>
+    <string name="loan_cancel_pending">Cancel·la aquest portàtil</string>
+    <string name="loan_batch_title">Préstecs per registrar: %1$d/%2$d</string>
+    <string name="loan_remove_row">Elimina %1$s</string>
+    <string name="loan_save">Guarda (%1$d)</string>
+    <plurals name="loan_confirm_text">
+        <item quantity="one">S\'enregistrarà %d préstec. Continuar?</item>
+        <item quantity="other">S\'enregistraran %d préstecs. Continuar?</item>
+    </plurals>
+    <string name="loan_discard_title">Descartar els préstecs?</string>
+    <string name="loan_discard_text">Els préstecs escanejats encara no s\'han guardat.</string>
+    <string name="loan_failed_rows_hint">Els préstecs que han fallat continuen a la llista.</string>
+
+    <string name="scan_portatil_available">%1$s disponible. Escaneja el carnet de l\'estudiant.</string>
+    <string name="scan_loan_added">Afegit: %1$s → %2$s</string>
+    <string name="scan_invalid_code">Codi de portàtil invàlid: %1$s</string>
+    <string name="scan_too_long">Codi massa llarg (màxim 100 caràcters).</string>
+    <string name="scan_already_in_batch">%1$s ja és a la llista.</string>
+    <string name="scan_already_lent">%1$s ja està prestat a %2$s.</string>
+    <string name="scan_student_is_laptop">Això és el portàtil: escaneja el carnet de l\'estudiant.</string>
+    <string name="scan_batch_full" tools:ignore="PluralsCandidate">Màxim %1$d per lot: guarda abans de continuar.</string>
+
+    <plurals name="result_prestec_success">
+        <item quantity="one">S\'ha registrat %d préstec.</item>
+        <item quantity="other">S\'han registrat %d préstecs.</item>
+    </plurals>
+    <string name="result_prestec_empty">No s\'ha enviat cap préstec.</string>
+    <string name="result_row_incomplete" tools:ignore="PluralsCandidate">Fila %1$d incompleta: cal el portàtil i l\'estudiant.</string>
+    <string name="result_row_too_long" tools:ignore="PluralsCandidate">Fila %1$d: hi ha valors massa llargs.</string>
+    <string name="result_portatil_format">Codi de portàtil invàlid: %1$s</string>
+    <string name="result_batch_duplicate">%1$s apareix més d\'una vegada.</string>
+    <string name="result_already_active">%1$s ja té un préstec actiu.</string>
 </resources>

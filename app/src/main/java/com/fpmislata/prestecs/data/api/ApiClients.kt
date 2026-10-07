@@ -37,12 +37,11 @@ class ApiClients(
     fun moodle(environment: Environment): MoodleAuthApi? =
         moodleUrl(environment)?.let { retrofit(it, okHttpClient).create(MoodleAuthApi::class.java) }
 
-    private fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit =
-        Retrofit.Builder()
-            .baseUrl(baseUrl)
-            .client(client)
-            .addConverterFactory(json.asConverterFactory("application/json; charset=UTF-8".toMediaType()))
-            .build()
+    private fun retrofit(baseUrl: String, client: OkHttpClient): Retrofit = Retrofit.Builder()
+        .baseUrl(baseUrl)
+        .client(client)
+        .addConverterFactory(json.asConverterFactory("application/json; charset=UTF-8".toMediaType()))
+        .build()
 
     private fun bearer(token: String) = Interceptor { chain ->
         chain.proceed(

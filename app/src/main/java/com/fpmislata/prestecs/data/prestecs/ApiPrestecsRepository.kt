@@ -14,11 +14,11 @@ import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.api.dto.PrestecsPageDto
 import com.fpmislata.prestecs.data.api.dto.ReturnsRequest
 import com.fpmislata.prestecs.data.api.dto.ReturnsResponse
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import retrofit2.Response
-import javax.inject.Inject
-import javax.inject.Singleton
 
 /**
  * [PrestecsRepository] over the JSON API, for the signed-in user. A 401 means
@@ -65,5 +65,4 @@ class ApiPrestecsRepository @Inject constructor(
         }
         return result
     }
-
 }

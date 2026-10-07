@@ -65,6 +65,7 @@ class LoansViewModelTest {
         repository.onList = { call ->
             when (call.page) {
                 1 -> page(listOf(4, 3), page = 1, totalPages = 3, total = 5)
+
                 // A new loan was created meanwhile: 3 moved to page 2.
                 else -> page(listOf(3, 2), page = 2, totalPages = 3, total = 5)
             }

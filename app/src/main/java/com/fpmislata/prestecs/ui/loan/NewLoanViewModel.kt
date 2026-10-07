@@ -13,6 +13,7 @@ import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import com.fpmislata.prestecs.ui.batch.failedItems
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,7 +24,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.json.Json
-import javax.inject.Inject
 
 /** Where the two-step scan (laptop, then student card) is. */
 sealed interface LoanStep {
@@ -141,6 +141,7 @@ class NewLoanViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is ApiResult.Failure -> _state.update {
                     it.copy(isSubmitting = false, outcome = SubmitOutcome.Failed(result.error))
                 }
@@ -209,4 +210,3 @@ class NewLoanViewModel @Inject constructor(
         val RowsSerializer = ListSerializer(PrestecRowDto.serializer())
     }
 }
-

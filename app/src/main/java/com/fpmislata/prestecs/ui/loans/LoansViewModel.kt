@@ -8,13 +8,13 @@ import com.fpmislata.prestecs.data.api.dto.Estat
 import com.fpmislata.prestecs.data.api.dto.PrestecDto
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class LoansUiState(
     /** Empty means all states. */
@@ -33,9 +33,7 @@ data class LoansUiState(
 )
 
 @HiltViewModel
-class LoansViewModel @Inject constructor(
-    private val repository: PrestecsRepository,
-) : ViewModel() {
+class LoansViewModel @Inject constructor(private val repository: PrestecsRepository) : ViewModel() {
 
     private val _state = MutableStateFlow(LoansUiState())
     val state: StateFlow<LoansUiState> = _state.asStateFlow()
@@ -97,6 +95,7 @@ class LoansViewModel @Inject constructor(
                             isLoadingMore = false,
                         )
                     }
+
                     is ApiResult.Failure -> if (page == 1) {
                         current.copy(isRefreshing = false, error = result.error)
                     } else {

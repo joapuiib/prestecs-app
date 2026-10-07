@@ -5,8 +5,10 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,9 +32,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,10 +51,10 @@ import com.fpmislata.prestecs.ui.batch.ConfirmDialog
 import com.fpmislata.prestecs.ui.batch.OutcomeCard
 import com.fpmislata.prestecs.ui.batch.SaveBar
 import com.fpmislata.prestecs.ui.batch.ScanEventsFeedback
-import com.fpmislata.prestecs.ui.batch.SuccessColor
 import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.scanner.ScanPanel
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
+import com.fpmislata.prestecs.ui.theme.success
 
 @Composable
 fun NewLoanScreen(onBack: () -> Unit, viewModel: NewLoanViewModel = hiltViewModel()) {
@@ -108,7 +114,12 @@ fun NewLoanContent(
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .fitInside(WindowInsetsRulers.Ime.current)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             StepIndicator(step = state.step, onCancelPending = onCancelPending)
@@ -210,7 +221,8 @@ private fun StepSlot(label: String, value: String, status: SlotStatus, modifier:
     }
     val content = if (status == SlotStatus.IDLE) MaterialTheme.colorScheme.onSurfaceVariant else Color(0xFF1D2330)
     Surface(
-        modifier = modifier,
+        // Read as one: "Portàtil, C1 - P01".
+        modifier = modifier.semantics(mergeDescendants = true) {},
         color = container,
         contentColor = content,
         border = BorderStroke(2.dp, border),
@@ -237,13 +249,21 @@ private fun StepSlot(label: String, value: String, status: SlotStatus, modifier:
 private fun ScanMessageText(message: ScanMessage) {
     val text = when (message) {
         is ScanMessage.PortatilAvailable -> stringResource(R.string.scan_portatil_available, message.portatil)
+
         is ScanMessage.Added -> stringResource(R.string.scan_loan_added, message.row.portatil, message.row.estudiant)
+
         is ScanMessage.InvalidCode -> stringResource(R.string.scan_invalid_code, message.code)
+
         ScanMessage.TooLong -> stringResource(R.string.scan_too_long)
+
         is ScanMessage.AlreadyInBatch -> stringResource(R.string.scan_already_in_batch, message.portatil)
+
         is ScanMessage.AlreadyLent -> stringResource(R.string.scan_already_lent, message.portatil, message.estudiant)
+
         is ScanMessage.LookupFailed -> message.error.message()
+
         ScanMessage.StudentIsLaptop -> stringResource(R.string.scan_student_is_laptop)
+
         ScanMessage.BatchFull -> stringResource(
             R.string.scan_batch_full,
             PrestecsRepository.MAX_BATCH_SIZE,
@@ -251,8 +271,10 @@ private fun ScanMessageText(message: ScanMessage) {
     }
     Text(
         text,
-        color = if (message.accepted) SuccessColor else MaterialTheme.colorScheme.error,
+        color = if (message.accepted) MaterialTheme.colorScheme.success else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.bodyMedium,
+        // Read out by TalkBack as soon as a scan is processed.
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
     )
 }
 

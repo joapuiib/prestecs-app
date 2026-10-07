@@ -28,11 +28,7 @@ import com.fpmislata.prestecs.R
  * [onSubmit] gets the trimmed text; the field clears afterwards.
  */
 @Composable
-fun ManualCodeEntry(
-    label: String,
-    onSubmit: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun ManualCodeEntry(label: String, onSubmit: (String) -> Unit, modifier: Modifier = Modifier) {
     var text by rememberSaveable { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
     val submit = {

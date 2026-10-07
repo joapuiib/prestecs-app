@@ -22,7 +22,9 @@ fun PrestecsRoot(viewModel: RootViewModel = hiltViewModel()) {
     Surface(modifier = Modifier.fillMaxSize()) {
         when (val s = state) {
             SessionState.Loading -> Unit
+
             is SessionState.LoggedOut -> LoginScreen()
+
             is SessionState.LoggedIn -> PrestecsNavHost(
                 environment = s.session.environment,
                 onLogOut = viewModel::logOut,

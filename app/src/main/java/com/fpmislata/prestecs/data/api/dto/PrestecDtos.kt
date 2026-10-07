@@ -40,26 +40,16 @@ data class PaginationDto(
 )
 
 @Serializable
-data class PrestecsPageDto(
-    val prestecs: List<PrestecDto>,
-    val pagination: PaginationDto,
-)
+data class PrestecsPageDto(val prestecs: List<PrestecDto>, val pagination: PaginationDto)
 
 @Serializable
-data class PrestecRowDto(
-    val portatil: String,
-    val estudiant: String,
-)
+data class PrestecRowDto(val portatil: String, val estudiant: String)
 
 @Serializable
-data class CreatePrestecsRequest(
-    val rows: List<PrestecRowDto>,
-)
+data class CreatePrestecsRequest(val rows: List<PrestecRowDto>)
 
 @Serializable
-data class ReturnsRequest(
-    val portatils: List<String>,
-)
+data class ReturnsRequest(val portatils: List<String>)
 
 @Serializable
 enum class Severity {

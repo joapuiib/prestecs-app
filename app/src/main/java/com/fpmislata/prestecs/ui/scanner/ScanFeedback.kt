@@ -14,10 +14,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
  * Beep and vibration after a scan, so the teacher can keep their eyes on the
  * laptops instead of the screen.
  */
-class ScanFeedback(
-    private val haptics: HapticFeedback,
-    private val tones: ToneGenerator?,
-) {
+class ScanFeedback(private val haptics: HapticFeedback, private val tones: ToneGenerator?) {
     fun accepted() {
         haptics.performHapticFeedback(HapticFeedbackType.Confirm)
         tones?.startTone(ToneGenerator.TONE_PROP_ACK, 150)

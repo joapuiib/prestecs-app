@@ -7,8 +7,4 @@ import kotlinx.serialization.Serializable
  * [token], on failure [error] and [errorcode] (e.g. `invalidlogin`).
  */
 @Serializable
-data class MoodleTokenDto(
-    val token: String? = null,
-    val error: String? = null,
-    val errorcode: String? = null,
-)
+data class MoodleTokenDto(val token: String? = null, val error: String? = null, val errorcode: String? = null)

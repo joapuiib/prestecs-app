@@ -11,6 +11,7 @@ import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import com.fpmislata.prestecs.ui.batch.failedItems
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -20,7 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /** Who has the laptop, as far as the API knows. */
 sealed interface ReturnLookup {
@@ -164,6 +164,7 @@ class NewReturnViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is ApiResult.Failure -> _state.update {
                     it.copy(isSubmitting = false, outcome = SubmitOutcome.Failed(result.error))
                 }
@@ -181,6 +182,7 @@ class NewReturnViewModel @Inject constructor(
         lookups[portatil] = viewModelScope.launch {
             val lookup = when (val result = repository.lookup(portatil)) {
                 is ApiResult.Failure -> ReturnLookup.Failed(result.error)
+
                 is ApiResult.Success -> if (result.value.found) {
                     ReturnLookup.Found(result.value.estudiant.orEmpty(), result.value.prestecData)
                 } else {

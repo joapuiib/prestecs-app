@@ -64,7 +64,10 @@ class NewLoanViewModelTest {
     @Test
     fun `codes without the spaced dash are rejected without asking the API`() {
         var lookups = 0
-        repository.onLookup = { lookups++; ApiResult.Success(LookupDto(found = false)) }
+        repository.onLookup = {
+            lookups++
+            ApiResult.Success(LookupDto(found = false))
+        }
 
         viewModel.onCode("C1-P01")
 
@@ -77,7 +80,10 @@ class NewLoanViewModelTest {
     fun `a laptop already in the batch is rejected without asking the API`() {
         scanRow("C1 - P01", "Maria")
         var lookups = 0
-        repository.onLookup = { lookups++; ApiResult.Success(LookupDto(found = false)) }
+        repository.onLookup = {
+            lookups++
+            ApiResult.Success(LookupDto(found = false))
+        }
 
         viewModel.onCode("C1 - P01")
 
@@ -222,6 +228,11 @@ class NewLoanViewModelTest {
         assertNull(restored.state.value.message)
     }
 
-    private fun message(code: String, severity: Severity, portatil: String? = null, row: Int? = null, count: Int? = null) =
-        BatchMessageDto(severity = severity, code = code, message = code, portatil = portatil, row = row, count = count)
+    private fun message(
+        code: String,
+        severity: Severity,
+        portatil: String? = null,
+        row: Int? = null,
+        count: Int? = null,
+    ) = BatchMessageDto(severity = severity, code = code, message = code, portatil = portatil, row = row, count = count)
 }

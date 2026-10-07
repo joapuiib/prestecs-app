@@ -186,11 +186,7 @@ private fun CredentialFields(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EnvironmentPicker(
-    selected: Environment,
-    enabled: Boolean,
-    onSelect: (Environment) -> Unit,
-) {
+private fun EnvironmentPicker(selected: Environment, enabled: Boolean, onSelect: (Environment) -> Unit) {
     var expanded by rememberSaveable { mutableStateOf(false) }
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -224,10 +220,14 @@ private fun EnvironmentPicker(
 @Composable
 private fun LoginError.message(): String = when (this) {
     LoginError.MissingFields -> stringResource(R.string.login_error_missing_fields)
+
     LoginError.InvalidCredentials -> stringResource(R.string.login_error_invalid_credentials)
-    is LoginError.Moodle -> message
-        ?.let { stringResource(R.string.login_error_moodle, it) }
-        ?: stringResource(R.string.error_unexpected)
+
+    is LoginError.Moodle ->
+        message
+            ?.let { stringResource(R.string.login_error_moodle, it) }
+            ?: stringResource(R.string.error_unexpected)
+
     is LoginError.Api -> error.message()
 }
 

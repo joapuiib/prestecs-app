@@ -17,7 +17,6 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fpmislata.prestecs.R
@@ -25,10 +24,8 @@ import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.components.text
 import com.fpmislata.prestecs.ui.scanner.rememberScanFeedback
+import com.fpmislata.prestecs.ui.theme.success
 import kotlinx.coroutines.flow.Flow
-
-/** Bootstrap's success green, as the web uses for successful scans. */
-val SuccessColor = Color(0xFF198754)
 
 /** Plays the beep and vibration for each [ScanEvent]. */
 @Composable
@@ -51,12 +48,13 @@ fun OutcomeCard(outcome: SubmitOutcome, failedHint: String, modifier: Modifier =
         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             when (outcome) {
                 is SubmitOutcome.Failed -> Text(outcome.error.message(), color = MaterialTheme.colorScheme.error)
+
                 is SubmitOutcome.Saved -> {
                     outcome.messages.forEach { message ->
                         Text(
                             message.text(),
                             color = if (message.severity == Severity.SUCCESS) {
-                                SuccessColor
+                                MaterialTheme.colorScheme.success
                             } else {
                                 MaterialTheme.colorScheme.error
                             },
@@ -93,13 +91,7 @@ fun SaveBar(label: String, enabled: Boolean, isSubmitting: Boolean, onSave: () -
 }
 
 @Composable
-fun ConfirmDialog(
-    title: String,
-    text: String,
-    confirmLabel: String,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+fun ConfirmDialog(title: String, text: String, confirmLabel: String, onConfirm: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(title) },

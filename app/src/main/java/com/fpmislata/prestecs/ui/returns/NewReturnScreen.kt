@@ -3,8 +3,10 @@ package com.fpmislata.prestecs.ui.returns
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.fitInside
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,9 +28,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.WindowInsetsRulers
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,11 +48,11 @@ import com.fpmislata.prestecs.ui.batch.ConfirmDialog
 import com.fpmislata.prestecs.ui.batch.OutcomeCard
 import com.fpmislata.prestecs.ui.batch.SaveBar
 import com.fpmislata.prestecs.ui.batch.ScanEventsFeedback
-import com.fpmislata.prestecs.ui.batch.SuccessColor
 import com.fpmislata.prestecs.ui.components.formatApiDate
 import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.scanner.ScanPanel
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
+import com.fpmislata.prestecs.ui.theme.success
 
 @Composable
 fun NewReturnScreen(onBack: () -> Unit, viewModel: NewReturnViewModel = hiltViewModel()) {
@@ -107,7 +114,12 @@ fun NewReturnContent(
         },
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .fitInside(WindowInsetsRulers.Ime.current)
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             ScanPanel(
@@ -164,8 +176,10 @@ private fun ScanMessageText(message: ReturnScanMessage) {
     }
     Text(
         text,
-        color = if (message.accepted) SuccessColor else MaterialTheme.colorScheme.error,
+        color = if (message.accepted) MaterialTheme.colorScheme.success else MaterialTheme.colorScheme.error,
         style = MaterialTheme.typography.bodyMedium,
+        // Read out by TalkBack as soon as a scan is processed.
+        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
     )
 }
 
@@ -207,12 +221,24 @@ private fun ReturnList(state: NewReturnUiState, onRemoveItem: (String) -> Unit, 
 @Composable
 private fun LookupText(lookup: ReturnLookup) {
     when (lookup) {
-        ReturnLookup.Pending -> CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+        ReturnLookup.Pending -> {
+            val checking = stringResource(R.string.lookup_checking)
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp).semantics { contentDescription = checking },
+                strokeWidth = 2.dp,
+            )
+        }
+
         is ReturnLookup.Found -> Text(
             lookup.prestecData?.let { "${lookup.estudiant} · ${formatApiDate(it)}" } ?: lookup.estudiant,
-            color = SuccessColor,
+            color = MaterialTheme.colorScheme.success,
         )
-        ReturnLookup.NotFound -> Text(stringResource(R.string.return_not_found), color = MaterialTheme.colorScheme.error)
+
+        ReturnLookup.NotFound -> Text(
+            stringResource(R.string.return_not_found),
+            color = MaterialTheme.colorScheme.error,
+        )
+
         is ReturnLookup.Failed -> Text(lookup.error.message(), color = MaterialTheme.colorScheme.error)
     }
 }

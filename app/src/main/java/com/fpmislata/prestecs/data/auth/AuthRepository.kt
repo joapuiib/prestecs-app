@@ -7,9 +7,9 @@ import com.fpmislata.prestecs.core.network.apiCall
 import com.fpmislata.prestecs.core.session.Session
 import com.fpmislata.prestecs.core.session.SessionRepository
 import com.fpmislata.prestecs.data.api.ApiClients
-import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.serialization.json.Json
 
 sealed interface LoginResult {
     data object Success : LoginResult
@@ -32,8 +32,10 @@ class AuthRepository @Inject constructor(
         val user = username.trim()
         val token = when (val moodle = apiClients.moodle(environment)) {
             null -> Environment.LOCAL_TOKEN
+
             else -> when (val result = apiCall(json) { moodle.token(user, password) }) {
                 is ApiResult.Failure -> return LoginResult.Failure(result.error)
+
                 is ApiResult.Success -> result.value.token ?: return when (result.value.errorcode) {
                     "invalidlogin" -> LoginResult.InvalidCredentials
                     else -> LoginResult.MoodleError(result.value.error)

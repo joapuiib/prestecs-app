@@ -18,10 +18,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
+import kotlinx.serialization.json.Json
+import okhttp3.OkHttpClient
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -51,8 +51,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideApiClients(okHttpClient: OkHttpClient, json: Json): ApiClients =
-        ApiClients(okHttpClient, json)
+    fun provideApiClients(okHttpClient: OkHttpClient, json: Json): ApiClients = ApiClients(okHttpClient, json)
 
     @Provides
     @Singleton

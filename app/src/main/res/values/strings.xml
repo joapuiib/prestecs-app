@@ -114,4 +114,6 @@
     <string name="result_devolucio_empty">No s\'ha enviat cap portàtil.</string>
     <string name="result_too_long">Codi massa llarg: %1$s</string>
     <string name="result_already_returned">%1$s ja s\'havia retornat.</string>
+    <string name="scanner_viewfinder_description">Càmera: apunta al codi QR</string>
+    <string name="lookup_checking">Comprovant</string>
 </resources>

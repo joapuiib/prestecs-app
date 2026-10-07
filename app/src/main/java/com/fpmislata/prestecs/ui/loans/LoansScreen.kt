@@ -138,12 +138,7 @@ fun LoansContent(
 }
 
 @Composable
-private fun LoansList(
-    state: LoansUiState,
-    onRetry: () -> Unit,
-    onLoadMore: () -> Unit,
-    onRetryLoadMore: () -> Unit,
-) {
+private fun LoansList(state: LoansUiState, onRetry: () -> Unit, onLoadMore: () -> Unit, onRetryLoadMore: () -> Unit) {
     // The list stays scrollable even when empty, so pull to refresh works.
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         if (state.error != null) {
@@ -169,6 +164,7 @@ private fun LoansList(
             state.loadMoreError != null -> item(key = "load-more-error") {
                 ErrorMessage(error = state.loadMoreError, onRetry = onRetryLoadMore)
             }
+
             state.hasMore -> item(key = "load-more") {
                 // Composed when scrolled into view: ask for the next page.
                 // Keyed by size so a page that still leaves it visible
@@ -206,11 +202,7 @@ private fun LoanItem(prestec: PrestecDto) {
 }
 
 @Composable
-private fun FilterRow(
-    filter: Set<Estat>,
-    total: Int?,
-    onFilterChange: (Estat, Boolean) -> Unit,
-) {
+private fun FilterRow(filter: Set<Estat>, total: Int?, onFilterChange: (Estat, Boolean) -> Unit) {
     Column(modifier = Modifier.padding(horizontal = 16.dp)) {
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -294,16 +286,29 @@ private fun OverflowMenu(onLogOut: () -> Unit) {
 
 private val previewPrestecs = listOf(
     PrestecDto(
-        id = 3, carro = "C1", portatil = "C1 - P03", estudiant = "12345678 - Garcia, Maria",
-        prestecData = "2026-10-07 08:15:00", estat = Estat.PRESTAT,
+        id = 3,
+        carro = "C1",
+        portatil = "C1 - P03",
+        estudiant = "12345678 - Garcia, Maria",
+        prestecData = "2026-10-07 08:15:00",
+        estat = Estat.PRESTAT,
     ),
     PrestecDto(
-        id = 2, carro = "C1", portatil = "C1 - P02", estudiant = "87654321 - Pérez, Joan",
-        prestecData = "2026-10-06 09:00:00", estat = Estat.NO_RETORNAT,
+        id = 2,
+        carro = "C1",
+        portatil = "C1 - P02",
+        estudiant = "87654321 - Pérez, Joan",
+        prestecData = "2026-10-06 09:00:00",
+        estat = Estat.NO_RETORNAT,
     ),
     PrestecDto(
-        id = 1, carro = "C2", portatil = "C2 - P11", estudiant = "11223344 - Soler, Anna",
-        prestecData = "2026-10-06 08:00:00", devolucioData = "2026-10-06 14:00:00", estat = Estat.RETORNAT,
+        id = 1,
+        carro = "C2",
+        portatil = "C2 - P11",
+        estudiant = "11223344 - Soler, Anna",
+        prestecData = "2026-10-06 08:00:00",
+        devolucioData = "2026-10-06 14:00:00",
+        estat = Estat.RETORNAT,
     ),
 )
 
@@ -342,4 +347,3 @@ private fun LoansErrorPreview() {
         )
     }
 }
-

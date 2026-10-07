@@ -5,6 +5,8 @@ import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.core.session.SessionRepository
 import com.fpmislata.prestecs.core.session.TokenCipher
 import com.fpmislata.prestecs.data.api.ApiClients
+import java.io.File
+import java.nio.file.Files
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -14,8 +16,6 @@ import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okhttp3.Headers
 import okhttp3.OkHttpClient
-import java.io.File
-import java.nio.file.Files
 
 /** Reversible stand-in for the Keystore cipher (not available on the JVM). */
 class FakeTokenCipher : TokenCipher {
@@ -29,10 +29,8 @@ class FakeTokenCipher : TokenCipher {
  * Real Retrofit/OkHttp stack and DataStore, with every environment pointed at
  * a [MockWebServer]: the API under `/api/`, Moodle under `/moodle/`.
  */
-class TestBackend(
-    canSwitchEnvironment: Boolean = true,
-    defaultEnvironment: Environment = Environment.STAGING,
-) : AutoCloseable {
+class TestBackend(canSwitchEnvironment: Boolean = true, defaultEnvironment: Environment = Environment.STAGING) :
+    AutoCloseable {
     val server = MockWebServer().apply { start() }
     val json = Json {
         ignoreUnknownKeys = true
@@ -71,4 +69,3 @@ class TestBackend(
         dir.deleteRecursively()
     }
 }
-

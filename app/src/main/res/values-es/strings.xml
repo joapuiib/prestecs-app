@@ -120,4 +120,6 @@
     <string name="result_devolucio_empty">No se ha enviado ningún portátil.</string>
     <string name="result_too_long">Código demasiado largo: %1$s</string>
     <string name="result_already_returned">%1$s ya se había devuelto.</string>
+    <string name="scanner_viewfinder_description">Cámara: apunta al código QR</string>
+    <string name="lookup_checking">Comprobando</string>
 </resources>

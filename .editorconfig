@@ -1,0 +1,24 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 4
+
+[*.{kt,kts}]
+# Keep in sync with the spotless block in build.gradle.kts.
+ktlint_code_style = android_studio
+max_line_length = 120
+# Keep trailing commas: one-line diffs when adding arguments or entries.
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+# Composables are named like types (LoginScreen, EstatBadge...).
+ktlint_function_naming_ignore_when_annotated_with = Composable
+
+[*.{xml,yml,yaml,toml,json}]
+indent_size = 2
+
+[*.xml]
+indent_size = 4

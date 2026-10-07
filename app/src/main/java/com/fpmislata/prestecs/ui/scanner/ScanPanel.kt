@@ -1,10 +1,13 @@
 package com.fpmislata.prestecs.ui.scanner
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.TextButton
+import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -20,19 +23,20 @@ import com.fpmislata.prestecs.R
  * codes both arrive through [onCode]. [manualLabel] names what to type
  * (laptop code, student...).
  */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun ScanPanel(
-    onCode: (String) -> Unit,
-    manualLabel: String,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
+fun ScanPanel(onCode: (String) -> Unit, manualLabel: String, modifier: Modifier = Modifier, enabled: Boolean = true) {
     var showManualEntry by rememberSaveable { mutableStateOf(false) }
+    // While typing, the keyboard leaves little room: hide the camera so the
+    // field stays in view.
+    val typing = showManualEntry && WindowInsets.isImeVisible
 
     Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        val viewfinder = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
-        CameraPermissionGate(modifier = viewfinder) {
-            QrScanner(onScan = onCode, enabled = enabled, modifier = viewfinder)
+        if (!typing) {
+            val viewfinder = Modifier.fillMaxWidth().aspectRatio(4f / 3f)
+            CameraPermissionGate(modifier = viewfinder) {
+                QrScanner(onScan = onCode, enabled = enabled, modifier = viewfinder)
+            }
         }
 
         // Typing works without the camera permission too.

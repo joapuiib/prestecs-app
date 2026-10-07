@@ -9,10 +9,15 @@ import com.fpmislata.prestecs.core.network.ApiError
 @Composable
 fun ApiError.message(): String = when (this) {
     ApiError.Network -> stringResource(R.string.error_network)
+
     ApiError.Unauthorized -> stringResource(R.string.error_unauthorized)
+
     ApiError.Forbidden -> stringResource(R.string.error_forbidden)
-    is ApiError.Server -> errorId
-        ?.let { stringResource(R.string.error_server_with_id, it) }
-        ?: stringResource(R.string.error_server)
+
+    is ApiError.Server ->
+        errorId
+            ?.let { stringResource(R.string.error_server_with_id, it) }
+            ?: stringResource(R.string.error_server)
+
     is ApiError.BadRequest, is ApiError.Unexpected -> stringResource(R.string.error_unexpected)
 }

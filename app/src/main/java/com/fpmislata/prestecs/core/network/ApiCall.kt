@@ -1,18 +1,15 @@
 package com.fpmislata.prestecs.core.network
 
+import java.io.IOException
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.SerializationException
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import retrofit2.Response
-import java.io.IOException
 
 @Serializable
-private data class ErrorBody(
-    val error: String? = null,
-    @SerialName("error_id") val errorId: String? = null,
-)
+private data class ErrorBody(val error: String? = null, @SerialName("error_id") val errorId: String? = null)
 
 /**
  * Runs a Retrofit call and maps the outcome to [ApiResult].
@@ -20,11 +17,7 @@ private data class ErrorBody(
  * Batch endpoints answer 422 when some items failed, with the same body as a
  * 200; pass [bodyOn422] to decode it as a success.
  */
-suspend fun <T> apiCall(
-    json: Json,
-    bodyOn422: KSerializer<T>? = null,
-    call: suspend () -> Response<T>,
-): ApiResult<T> {
+suspend fun <T> apiCall(json: Json, bodyOn422: KSerializer<T>? = null, call: suspend () -> Response<T>): ApiResult<T> {
     val response = try {
         call()
     } catch (e: IOException) {

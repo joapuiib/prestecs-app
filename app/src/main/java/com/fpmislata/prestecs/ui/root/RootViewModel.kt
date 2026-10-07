@@ -5,16 +5,14 @@ import androidx.lifecycle.viewModelScope
 import com.fpmislata.prestecs.core.session.SessionRepository
 import com.fpmislata.prestecs.core.session.SessionState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
-class RootViewModel @Inject constructor(
-    private val sessionRepository: SessionRepository,
-) : ViewModel() {
+class RootViewModel @Inject constructor(private val sessionRepository: SessionRepository) : ViewModel() {
     val sessionState: StateFlow<SessionState> = sessionRepository.state
         .stateIn(viewModelScope, SharingStarted.Eagerly, SessionState.Loading)
 

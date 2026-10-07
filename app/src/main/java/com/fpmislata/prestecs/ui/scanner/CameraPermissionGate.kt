@@ -42,10 +42,7 @@ import com.fpmislata.prestecs.R
  * granting it from the settings, or revoking it, takes effect on return.
  */
 @Composable
-fun CameraPermissionGate(
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
+fun CameraPermissionGate(modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val activity = LocalActivity.current
     var granted by remember { mutableStateOf(context.hasCameraPermission()) }

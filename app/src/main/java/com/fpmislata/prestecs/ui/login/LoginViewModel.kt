@@ -10,6 +10,7 @@ import com.fpmislata.prestecs.core.session.SessionState
 import com.fpmislata.prestecs.data.auth.AuthRepository
 import com.fpmislata.prestecs.data.auth.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +19,6 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 sealed interface LoginError {
     data object MissingFields : LoginError

@@ -38,6 +38,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -46,8 +48,8 @@ import com.fpmislata.prestecs.R
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
-import kotlinx.coroutines.awaitCancellation
 import java.util.concurrent.Executors
+import kotlinx.coroutines.awaitCancellation
 
 /**
  * Back-camera viewfinder that reads QR codes. Needs the CAMERA permission:
@@ -58,11 +60,7 @@ import java.util.concurrent.Executors
  * [enabled] is false, codes are ignored but the preview keeps running.
  */
 @Composable
-fun QrScanner(
-    onScan: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-) {
+fun QrScanner(onScan: (String) -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnScan by rememberUpdatedState(onScan)
@@ -130,10 +128,12 @@ fun QrScanner(
         }
     }
 
+    val viewfinderDescription = stringResource(R.string.scanner_viewfinder_description)
     Box(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(Color.Black),
+            .background(Color.Black)
+            .semantics { contentDescription = viewfinderDescription },
         contentAlignment = Alignment.Center,
     ) {
         surfaceRequest?.let { request ->

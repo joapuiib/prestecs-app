@@ -176,7 +176,10 @@ class NewReturnViewModelTest {
         viewModel.onCode("C9 - P99")
         var lookups = 0
         val lookup = repository.onLookup
-        repository.onLookup = { lookups++; lookup(it) }
+        repository.onLookup = {
+            lookups++
+            lookup(it)
+        }
 
         val restored = NewReturnViewModel(repository, savedState)
         assertEquals(

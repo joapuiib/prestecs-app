@@ -9,7 +9,7 @@ import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.testing.TestBackend
-import kotlinx.coroutines.flow.first
+import com.fpmislata.prestecs.testing.assertStateBecomes
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -138,8 +138,7 @@ class PrestecsRepositoryTest {
         val result = repository.lookup("C1 - P01")
 
         assertEquals(ApiResult.Failure(ApiError.Unauthorized), result)
-        val state = backend.sessionRepository.state.first { it !is SessionState.Loading }
-        assertEquals(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"), state)
+        backend.sessionRepository.assertStateBecomes(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"))
     }
 
     @Test

@@ -7,6 +7,20 @@ import org.junit.Test
 
 class StudentQrTest {
     @Test
+    fun `JSON with a nia is a student card`() {
+        assertTrue(StudentQr.isCard("""{"version":"0.1","nia":"12345678","name":"Maria","surname":"Garcia"}"""))
+        assertTrue(StudentQr.isCard("""  {"nia":123} """))
+    }
+
+    @Test
+    fun `laptop codes and other JSON are not student cards`() {
+        assertFalse(StudentQr.isCard("C1 - P01"))
+        assertFalse(StudentQr.isCard("""{"name":"Maria"}"""))
+        assertFalse(StudentQr.isCard("{broken"))
+        assertFalse(StudentQr.isCard("[1,2]"))
+    }
+
+    @Test
     fun `JSON card becomes NIA - SURNAME, NAME`() {
         val qr = """{"version":"0.1","nia":"12345678","name":"Maria","surname":"Garcia Puig","espec":"DAW"}"""
 

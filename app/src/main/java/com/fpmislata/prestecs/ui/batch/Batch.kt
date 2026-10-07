@@ -6,6 +6,12 @@ import com.fpmislata.prestecs.data.api.dto.Severity
 
 // Shared by the loan and return batches.
 
+/** How long a rejected scan stays on screen, as on the web form. */
+const val ERROR_MESSAGE_MILLIS = 3_000L
+
+/** How long a new row stays green, as on the web form. */
+const val FLASH_MILLIS = 1_200L
+
 /** What the API answered to the last save. */
 sealed interface SubmitOutcome {
     /** All items, or only some (`success == false`): see [messages]. */

@@ -11,9 +11,12 @@ import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.testing.FakePrestecsRepository
 import com.fpmislata.prestecs.testing.MainDispatcherRule
+import com.fpmislata.prestecs.ui.batch.ERROR_MESSAGE_MILLIS
+import com.fpmislata.prestecs.ui.batch.FLASH_MILLIS
 import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -21,6 +24,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NewLoanViewModelTest {
     @get:Rule
     val mainDispatcher = MainDispatcherRule()
@@ -48,7 +52,52 @@ class NewLoanViewModelTest {
         val row = PrestecRowDto("C1 - P01", "12345678 - Garcia, Maria")
         assertEquals(listOf(row), state.rows)
         assertEquals(LoanStep.WaitingPortatil, state.step)
-        assertEquals(ScanMessage.Added(row), state.message)
+        // The new row flashed green is the confirmation: no message.
+        assertNull(state.message)
+        assertEquals("C1 - P01", state.highlighted)
+    }
+
+    @Test
+    fun `new rows go at the end and stop flashing after a moment`() {
+        scanRow("C1 - P01", "A - B")
+        scanRow("C1 - P02", "C - D")
+
+        assertEquals(listOf("C1 - P01", "C1 - P02"), state.rows.map { it.portatil })
+        assertEquals("C1 - P02", state.highlighted)
+
+        mainDispatcher.dispatcher.scheduler.advanceTimeBy(FLASH_MILLIS + 1)
+        mainDispatcher.dispatcher.scheduler.runCurrent()
+
+        assertNull(state.highlighted)
+    }
+
+    @Test
+    fun `rejections disappear after a few seconds`() {
+        viewModel.onCode("C1-P01")
+        assertEquals(ScanMessage.InvalidCode("C1-P01"), state.message)
+
+        mainDispatcher.dispatcher.scheduler.advanceTimeBy(ERROR_MESSAGE_MILLIS + 1)
+        mainDispatcher.dispatcher.scheduler.runCurrent()
+
+        assertNull(state.message)
+    }
+
+    @Test
+    fun `the laptop prompt stays until the student is scanned`() {
+        viewModel.onCode("C1 - P01")
+
+        mainDispatcher.dispatcher.scheduler.advanceTimeBy(ERROR_MESSAGE_MILLIS * 2)
+        mainDispatcher.dispatcher.scheduler.runCurrent()
+
+        assertEquals(ScanMessage.PortatilAvailable("C1 - P01"), state.message)
+    }
+
+    @Test
+    fun `a student card where a laptop is expected is rejected`() {
+        viewModel.onCode("""{"version":"0.1","nia":"1001","name":"Anna","surname":"Ferrer"}""")
+
+        assertEquals(ScanMessage.StudentCard, state.message)
+        assertEquals(LoanStep.WaitingPortatil, state.step)
     }
 
     @Test

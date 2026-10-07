@@ -10,16 +10,20 @@ import com.fpmislata.prestecs.data.api.dto.ReturnsResponse
 import com.fpmislata.prestecs.data.api.dto.Severity
 import com.fpmislata.prestecs.testing.FakePrestecsRepository
 import com.fpmislata.prestecs.testing.MainDispatcherRule
+import com.fpmislata.prestecs.ui.batch.ERROR_MESSAGE_MILLIS
 import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class NewReturnViewModelTest {
     @get:Rule
     val mainDispatcher = MainDispatcherRule()
@@ -46,19 +50,43 @@ class NewReturnViewModelTest {
         viewModel.onCode(" C1 - P01 ")
 
         assertEquals(ReturnLookup.Found("Maria", "2026-10-07 08:00:00"), lookupOf("C1 - P01"))
-        assertEquals(ReturnScanMessage.Found("C1 - P01", "Maria"), state.message)
+        // The new row flashed green is the confirmation: no message.
+        assertNull(state.message)
+        assertEquals("C1 - P01", state.highlighted)
         assertEquals(listOf("C1 - P01"), state.toReturn)
     }
 
     @Test
-    fun `laptops without an active loan are listed but not sent`() {
+    fun `laptops without an active loan are not added`() {
         viewModel.onCode("C1 - P01")
         viewModel.onCode("C9 - P99")
 
-        assertEquals(ReturnLookup.NotFound, lookupOf("C9 - P99"))
+        assertEquals(listOf("C1 - P01"), state.items.map { it.portatil })
         assertEquals(ReturnScanMessage.NotFound("C9 - P99"), state.message)
-        assertEquals(listOf("C1 - P01"), state.toReturn)
-        assertEquals(1, state.excludedCount)
+        assertEquals(0, state.excludedCount)
+    }
+
+    @Test
+    fun `new rows go at the end and the rejection fades`() {
+        viewModel.onCode("C1 - P02")
+        viewModel.onCode("C1 - P01")
+        viewModel.onCode("C9 - P99")
+
+        assertEquals(listOf("C1 - P02", "C1 - P01"), state.items.map { it.portatil })
+
+        mainDispatcher.dispatcher.scheduler.advanceTimeBy(ERROR_MESSAGE_MILLIS + 1)
+        mainDispatcher.dispatcher.scheduler.runCurrent()
+
+        assertNull(state.message)
+        assertNull(state.highlighted)
+    }
+
+    @Test
+    fun `a student card where a laptop is expected is rejected`() {
+        viewModel.onCode("""{"version":"0.1","nia":"1001","name":"Anna","surname":"Ferrer"}""")
+
+        assertEquals(ReturnScanMessage.StudentCard, state.message)
+        assertTrue(state.items.isEmpty())
     }
 
     @Test
@@ -123,6 +151,7 @@ class NewReturnViewModelTest {
 
     @Test
     fun `batches stop at 50 laptops`() {
+        repository.onLookup = { ApiResult.Success(LookupDto(found = true, estudiant = "Maria")) }
         repeat(50) { viewModel.onCode("C1 - P%02d".format(it)) }
 
         viewModel.onCode("C2 - P01")
@@ -135,7 +164,6 @@ class NewReturnViewModelTest {
     fun `saving sends only laptops with a loan and removes the returned ones`() {
         viewModel.onCode("C1 - P01")
         viewModel.onCode("C1 - P02")
-        viewModel.onCode("C9 - P99")
         var sent: List<String>? = null
         repository.onReturns = { portatils ->
             sent = portatils
@@ -154,8 +182,8 @@ class NewReturnViewModelTest {
         viewModel.submit()
 
         assertEquals(listOf("C1 - P01", "C1 - P02"), sent)
-        // P01 was returned; P02 failed and P99 was never sent: both stay.
-        assertEquals(listOf("C1 - P02", "C9 - P99"), state.items.map { it.portatil })
+        // P01 was returned; P02 failed: it stays.
+        assertEquals(listOf("C1 - P02"), state.items.map { it.portatil })
         assertEquals(false, (state.outcome as SubmitOutcome.Saved).success)
     }
 
@@ -173,7 +201,7 @@ class NewReturnViewModelTest {
     @Test
     fun `restored laptops are looked up again when the screen resumes`() {
         viewModel.onCode("C1 - P01")
-        viewModel.onCode("C9 - P99")
+        viewModel.onCode("C1 - P02")
         var lookups = 0
         val lookup = repository.onLookup
         repository.onLookup = {
@@ -191,7 +219,7 @@ class NewReturnViewModelTest {
         restored.resumeLookups()
 
         assertEquals(2, lookups)
-        assertEquals(listOf("C1 - P01"), restored.state.value.toReturn)
+        assertEquals(listOf("C1 - P01", "C1 - P02"), restored.state.value.toReturn)
     }
 
     private fun message(code: String, severity: Severity, portatil: String? = null) =

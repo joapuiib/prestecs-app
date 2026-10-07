@@ -15,6 +15,16 @@ import kotlinx.serialization.json.contentOrNull
  *   So is JSON without `nia`, `name` and `surname`.
  */
 object StudentQr {
+    /** True for a JSON student card (has a `nia`), e.g. scanned where a laptop is expected. */
+    fun isCard(raw: String): Boolean {
+        val json = try {
+            Json.parseToJsonElement(raw.trim()) as? JsonObject
+        } catch (e: IllegalArgumentException) {
+            null
+        }
+        return json != null && "nia" in json
+    }
+
     fun parse(raw: String): String {
         val text = raw.trim()
         if (!text.startsWith("{")) return text

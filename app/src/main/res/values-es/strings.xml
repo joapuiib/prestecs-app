@@ -74,7 +74,7 @@
     <string name="loan_failed_rows_hint">Los préstamos que han fallado siguen en la lista.</string>
 
     <string name="scan_portatil_available">%1$s disponible. Escanea el carné del estudiante.</string>
-    <string name="scan_loan_added">Añadido: %1$s → %2$s</string>
+    <string name="scan_student_card">Eso es un carné de estudiante: escanea un portátil.</string>
     <string name="scan_invalid_code">Código de portátil no válido: %1$s</string>
     <string name="scan_too_long">Código demasiado largo (máximo 100 caracteres).</string>
     <string name="scan_already_in_batch">%1$s ya está en la lista.</string>
@@ -94,9 +94,7 @@
     <string name="result_batch_duplicate">%1$s aparece más de una vez.</string>
     <string name="result_already_active">%1$s ya tiene un préstamo activo.</string>
     <string name="no_active_loan">%1$s no tiene ningún préstamo activo.</string>
-    <string name="scan_return_found">%1$s, prestado a %2$s.</string>
     <string name="return_batch_title" tools:ignore="PluralsCandidate">Devoluciones: %1$d/%2$d</string>
-    <string name="return_not_found">No tiene ningún préstamo activo</string>
     <string name="return_save">Devolver (%1$d)</string>
     <plurals name="return_confirm_text">
         <item quantity="one">Se registrará la devolución de %d portátil. ¿Continuar?</item>
@@ -104,9 +102,9 @@
         <item quantity="other">Se registrará la devolución de %d portátiles. ¿Continuar?</item>
     </plurals>
     <plurals name="return_excluded_hint">
-        <item quantity="one">%d portátil no se enviará: no tiene ningún préstamo activo o no se ha podido comprobar.</item>
-        <item quantity="many">%d portátiles no se enviarán: no tienen ningún préstamo activo o no se han podido comprobar.</item>
-        <item quantity="other">%d portátiles no se enviarán: no tienen ningún préstamo activo o no se han podido comprobar.</item>
+        <item quantity="one">%d portátil no se enviará: no se ha podido comprobar.</item>
+        <item quantity="many">%d portátiles no se enviarán: no se han podido comprobar.</item>
+        <item quantity="other">%d portátiles no se enviarán: no se han podido comprobar.</item>
     </plurals>
     <string name="return_discard_title">¿Descartar las devoluciones?</string>
     <string name="return_discard_text">Los portátiles escaneados aún no se han devuelto.</string>

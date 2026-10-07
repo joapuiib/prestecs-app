@@ -9,12 +9,16 @@ import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.domain.PortatilCode
 import com.fpmislata.prestecs.domain.StudentQr
+import com.fpmislata.prestecs.ui.batch.ERROR_MESSAGE_MILLIS
+import com.fpmislata.prestecs.ui.batch.FLASH_MILLIS
 import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import com.fpmislata.prestecs.ui.batch.failedItems
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -43,10 +47,6 @@ sealed interface ScanMessage {
         override val accepted = true
     }
 
-    data class Added(val row: PrestecRowDto) : ScanMessage {
-        override val accepted = true
-    }
-
     data class InvalidCode(val code: String) : ScanMessage {
         override val accepted = false
     }
@@ -67,6 +67,11 @@ sealed interface ScanMessage {
         override val accepted = false
     }
 
+    /** A student card scanned where a laptop is expected. */
+    data object StudentCard : ScanMessage {
+        override val accepted = false
+    }
+
     data object StudentIsLaptop : ScanMessage {
         override val accepted = false
     }
@@ -79,6 +84,8 @@ sealed interface ScanMessage {
 data class NewLoanUiState(
     val step: LoanStep = LoanStep.WaitingPortatil,
     val rows: List<PrestecRowDto> = emptyList(),
+    /** Row added a moment ago: shown green for [FLASH_MILLIS]. */
+    val highlighted: String? = null,
     val message: ScanMessage? = null,
     val isSubmitting: Boolean = false,
     val outcome: SubmitOutcome? = null,
@@ -103,6 +110,9 @@ class NewLoanViewModel @Inject constructor(
 
     private val _events = Channel<ScanEvent>(Channel.BUFFERED)
     val events: Flow<ScanEvent> = _events.receiveAsFlow()
+
+    private var messageJob: Job? = null
+    private var flashJob: Job? = null
 
     /** A scanned or typed code, for whichever step is active. */
     fun onCode(code: String) {
@@ -152,6 +162,7 @@ class NewLoanViewModel @Inject constructor(
     private fun onPortatil(portatil: String, rows: List<PrestecRowDto>) {
         val rejection = when {
             portatil.isEmpty() -> return
+            StudentQr.isCard(portatil) -> ScanMessage.StudentCard
             rows.size >= PrestecsRepository.MAX_BATCH_SIZE -> ScanMessage.BatchFull
             portatil.length > PortatilCode.MAX_LENGTH -> ScanMessage.TooLong
             !PortatilCode.isValid(portatil) -> ScanMessage.InvalidCode(portatil)
@@ -188,13 +199,33 @@ class NewLoanViewModel @Inject constructor(
 
         val row = PrestecRowDto(portatil = portatil, estudiant = estudiant)
         setRows(_state.value.rows + row)
-        _state.update { it.copy(step = LoanStep.WaitingPortatil) }
-        show(ScanMessage.Added(row))
+        // The new row, flashed green, is the confirmation: no message.
+        messageJob?.cancel()
+        _state.update { it.copy(step = LoanStep.WaitingPortatil, message = null) }
+        flash(portatil)
+        _events.trySend(ScanEvent.ACCEPTED)
     }
 
+    /** Rejections fade after [ERROR_MESSAGE_MILLIS], like the web form. */
     private fun show(message: ScanMessage) {
+        messageJob?.cancel()
         _state.update { it.copy(message = message) }
         _events.trySend(if (message.accepted) ScanEvent.ACCEPTED else ScanEvent.REJECTED)
+        if (!message.accepted) {
+            messageJob = viewModelScope.launch {
+                delay(ERROR_MESSAGE_MILLIS)
+                _state.update { if (it.message == message) it.copy(message = null) else it }
+            }
+        }
+    }
+
+    private fun flash(portatil: String) {
+        flashJob?.cancel()
+        _state.update { it.copy(highlighted = portatil) }
+        flashJob = viewModelScope.launch {
+            delay(FLASH_MILLIS)
+            _state.update { it.copy(highlighted = null) }
+        }
     }
 
     private fun setRows(rows: List<PrestecRowDto>) {

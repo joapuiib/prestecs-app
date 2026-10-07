@@ -37,3 +37,7 @@ fun PrestecsTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composab
  */
 val ColorScheme.success: Color
     get() = if (surface.luminance() < 0.5f) Color(0xFF4AC26B) else Color(0xFF146C43)
+
+/** Background of a row that was just added: the web's `table-success` flash. */
+val ColorScheme.successContainer: Color
+    get() = if (surface.luminance() < 0.5f) Color(0xFF1E4D33) else Color(0xFFD1E7DD)

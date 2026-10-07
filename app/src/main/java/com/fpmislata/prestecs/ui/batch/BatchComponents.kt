@@ -1,11 +1,15 @@
 package com.fpmislata.prestecs.ui.batch
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
@@ -16,7 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.fpmislata.prestecs.R
@@ -25,7 +34,37 @@ import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.components.text
 import com.fpmislata.prestecs.ui.scanner.rememberScanFeedback
 import com.fpmislata.prestecs.ui.theme.success
+import com.fpmislata.prestecs.ui.theme.successContainer
 import kotlinx.coroutines.flow.Flow
+
+/**
+ * Room for one line of scan feedback, empty or not, so the list below doesn't
+ * move when a message appears or fades.
+ */
+@Composable
+fun MessageLine(content: @Composable () -> Unit) {
+    Box(Modifier.fillMaxWidth().heightIn(min = 24.dp)) { content() }
+}
+
+/** Row background: green for [FLASH_MILLIS] after the row is added, as `table-success` on the web. */
+@Composable
+fun flashColor(highlighted: Boolean): Color {
+    val color by animateColorAsState(
+        if (highlighted) MaterialTheme.colorScheme.successContainer else Color.Transparent,
+        label = "rowFlash",
+    )
+    return color
+}
+
+/** Scrolls to the end when [count] grows: new rows are added at the bottom. */
+@Composable
+fun ScrollToNewRow(listState: LazyListState, count: Int) {
+    var previous by remember { mutableIntStateOf(count) }
+    LaunchedEffect(count) {
+        if (count > previous) listState.animateScrollToItem(count - 1)
+        previous = count
+    }
+}
 
 /** Plays the beep and vibration for each [ScanEvent]. */
 @Composable

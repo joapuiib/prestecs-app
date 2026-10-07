@@ -7,6 +7,9 @@ import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.core.network.ApiResult
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.domain.PortatilCode
+import com.fpmislata.prestecs.domain.StudentQr
+import com.fpmislata.prestecs.ui.batch.ERROR_MESSAGE_MILLIS
+import com.fpmislata.prestecs.ui.batch.FLASH_MILLIS
 import com.fpmislata.prestecs.ui.batch.ScanEvent
 import com.fpmislata.prestecs.ui.batch.SubmitOutcome
 import com.fpmislata.prestecs.ui.batch.failedItems
@@ -14,6 +17,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,14 +26,14 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/** Who has the laptop, as far as the API knows. */
+/**
+ * Who has the laptop, as far as the API knows. A laptop without an active loan
+ * has nothing to return: it is dropped from the list, not shown here.
+ */
 sealed interface ReturnLookup {
     data object Pending : ReturnLookup
 
     data class Found(val estudiant: String, val prestecData: String?) : ReturnLookup
-
-    /** No active loan: nothing to return. */
-    data object NotFound : ReturnLookup
 
     data class Failed(val error: ApiError) : ReturnLookup
 }
@@ -40,15 +44,16 @@ data class ReturnItem(val portatil: String, val lookup: ReturnLookup)
 sealed interface ReturnScanMessage {
     val accepted: Boolean
 
-    data class Found(val portatil: String, val estudiant: String) : ReturnScanMessage {
-        override val accepted = true
-    }
-
     data class NotFound(val portatil: String) : ReturnScanMessage {
         override val accepted = false
     }
 
     data class LookupFailed(val portatil: String, val error: ApiError) : ReturnScanMessage {
+        override val accepted = false
+    }
+
+    /** A student card scanned where a laptop is expected. */
+    data object StudentCard : ReturnScanMessage {
         override val accepted = false
     }
 
@@ -67,6 +72,8 @@ sealed interface ReturnScanMessage {
 
 data class NewReturnUiState(
     val items: List<ReturnItem> = emptyList(),
+    /** Laptop found a moment ago: shown green for [FLASH_MILLIS]. */
+    val highlighted: String? = null,
     val message: ReturnScanMessage? = null,
     val isSubmitting: Boolean = false,
     val outcome: SubmitOutcome? = null,
@@ -74,9 +81,8 @@ data class NewReturnUiState(
     /** Only laptops with an active loan are sent. */
     val toReturn: List<String> get() = items.filter { it.lookup is ReturnLookup.Found }.map { it.portatil }
 
-    /** Laptops that won't be sent: no active loan, or the lookup failed. */
-    val excludedCount: Int
-        get() = items.count { it.lookup is ReturnLookup.NotFound || it.lookup is ReturnLookup.Failed }
+    /** Laptops that won't be sent because the lookup failed. */
+    val excludedCount: Int get() = items.count { it.lookup is ReturnLookup.Failed }
 
     val isLookingUp: Boolean get() = items.any { it.lookup == ReturnLookup.Pending }
 
@@ -87,7 +93,7 @@ data class NewReturnUiState(
 
 /**
  * Return batch: scan laptops one after another; each is looked up at once to
- * show who had it, and those without an active loan are left out. Same rules
+ * show who had it, and those without an active loan are dropped. Same rules
  * as the web form (devolucio.js).
  */
 @HiltViewModel
@@ -110,6 +116,8 @@ class NewReturnViewModel @Inject constructor(
     val events: Flow<ScanEvent> = _events.receiveAsFlow()
 
     private val lookups = mutableMapOf<String, Job>()
+    private var messageJob: Job? = null
+    private var flashJob: Job? = null
 
     /**
      * Starts the lookups of restored laptops. The screen calls it when shown;
@@ -127,6 +135,7 @@ class NewReturnViewModel @Inject constructor(
         val current = _state.value
         if (portatil.isEmpty() || current.isSubmitting) return
         val rejection = when {
+            StudentQr.isCard(portatil) -> ReturnScanMessage.StudentCard
             current.items.size >= PrestecsRepository.MAX_BATCH_SIZE -> ReturnScanMessage.BatchFull
             portatil.length > PortatilCode.MAX_LENGTH -> ReturnScanMessage.TooLong
             current.items.any { it.portatil == portatil } -> ReturnScanMessage.AlreadyInBatch(portatil)
@@ -180,35 +189,63 @@ class NewReturnViewModel @Inject constructor(
     /** [announce]: show and beep the result, for a laptop just scanned. */
     private fun lookUp(portatil: String, announce: Boolean) {
         lookups[portatil] = viewModelScope.launch {
-            val lookup = when (val result = repository.lookup(portatil)) {
+            // null: the laptop has no active loan.
+            val lookup: ReturnLookup? = when (val result = repository.lookup(portatil)) {
                 is ApiResult.Failure -> ReturnLookup.Failed(result.error)
 
                 is ApiResult.Success -> if (result.value.found) {
                     ReturnLookup.Found(result.value.estudiant.orEmpty(), result.value.prestecData)
                 } else {
-                    ReturnLookup.NotFound
+                    null
                 }
             }
             lookups.remove(portatil)
+            if (lookup == null) {
+                // No active loan: nothing to return, so the row doesn't stay.
+                setItems(_state.value.items.filterNot { it.portatil == portatil })
+                if (announce) show(ReturnScanMessage.NotFound(portatil))
+                return@launch
+            }
             _state.update { state ->
                 state.copy(
                     items = state.items.map { if (it.portatil == portatil) it.copy(lookup = lookup) else it },
                 )
             }
             if (!announce) return@launch
-            show(
-                when (lookup) {
-                    is ReturnLookup.Found -> ReturnScanMessage.Found(portatil, lookup.estudiant)
-                    is ReturnLookup.Failed -> ReturnScanMessage.LookupFailed(portatil, lookup.error)
-                    else -> ReturnScanMessage.NotFound(portatil)
-                },
-            )
+            when (lookup) {
+                // The row, flashed green, is the confirmation: no message.
+                is ReturnLookup.Found -> {
+                    flash(portatil)
+                    _events.trySend(ScanEvent.ACCEPTED)
+                }
+
+                is ReturnLookup.Failed -> show(ReturnScanMessage.LookupFailed(portatil, lookup.error))
+
+                ReturnLookup.Pending -> Unit
+            }
         }
     }
 
+    /** Rejections fade after [ERROR_MESSAGE_MILLIS], like the web form. */
     private fun show(message: ReturnScanMessage) {
+        messageJob?.cancel()
         _state.update { it.copy(message = message) }
         _events.trySend(if (message.accepted) ScanEvent.ACCEPTED else ScanEvent.REJECTED)
+        if (!message.accepted) {
+            messageJob = viewModelScope.launch {
+                delay(ERROR_MESSAGE_MILLIS)
+                _state.update { if (it.message == message) it.copy(message = null) else it }
+            }
+        }
+    }
+
+    private fun flash(portatil: String) {
+        flashJob?.cancel()
+        _state.update { it.copy(highlighted = portatil) }
+        flashJob = viewModelScope.launch {
+            delay(FLASH_MILLIS)
+            _state.update { it.copy(highlighted = null) }
+        }
     }
 
     private fun setItems(items: List<ReturnItem>) {

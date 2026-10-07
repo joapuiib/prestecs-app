@@ -13,12 +13,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -48,9 +50,12 @@ import com.fpmislata.prestecs.R
 import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.ui.batch.ConfirmDialog
+import com.fpmislata.prestecs.ui.batch.MessageLine
 import com.fpmislata.prestecs.ui.batch.OutcomeCard
 import com.fpmislata.prestecs.ui.batch.SaveBar
 import com.fpmislata.prestecs.ui.batch.ScanEventsFeedback
+import com.fpmislata.prestecs.ui.batch.ScrollToNewRow
+import com.fpmislata.prestecs.ui.batch.flashColor
 import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.scanner.ScanPanel
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
@@ -135,11 +140,16 @@ fun NewLoanContent(
                 enabled = state.canScan,
                 modifier = Modifier.fillMaxWidth(),
             )
-            state.message?.let { ScanMessageText(it) }
+            MessageLine { state.message?.let { ScanMessageText(it) } }
             state.outcome?.let { outcome ->
                 OutcomeCard(outcome, failedHint = stringResource(R.string.loan_failed_rows_hint))
             }
-            BatchList(rows = state.rows, onRemoveRow = onRemoveRow, modifier = Modifier.weight(1f))
+            BatchList(
+                rows = state.rows,
+                highlighted = state.highlighted,
+                onRemoveRow = onRemoveRow,
+                modifier = Modifier.weight(1f),
+            )
         }
     }
 
@@ -250,8 +260,6 @@ private fun ScanMessageText(message: ScanMessage) {
     val text = when (message) {
         is ScanMessage.PortatilAvailable -> stringResource(R.string.scan_portatil_available, message.portatil)
 
-        is ScanMessage.Added -> stringResource(R.string.scan_loan_added, message.row.portatil, message.row.estudiant)
-
         is ScanMessage.InvalidCode -> stringResource(R.string.scan_invalid_code, message.code)
 
         ScanMessage.TooLong -> stringResource(R.string.scan_too_long)
@@ -261,6 +269,8 @@ private fun ScanMessageText(message: ScanMessage) {
         is ScanMessage.AlreadyLent -> stringResource(R.string.scan_already_lent, message.portatil, message.estudiant)
 
         is ScanMessage.LookupFailed -> message.error.message()
+
+        ScanMessage.StudentCard -> stringResource(R.string.scan_student_card)
 
         ScanMessage.StudentIsLaptop -> stringResource(R.string.scan_student_is_laptop)
 
@@ -279,16 +289,23 @@ private fun ScanMessageText(message: ScanMessage) {
 }
 
 @Composable
-private fun BatchList(rows: List<PrestecRowDto>, onRemoveRow: (String) -> Unit, modifier: Modifier = Modifier) {
+private fun BatchList(
+    rows: List<PrestecRowDto>,
+    highlighted: String?,
+    onRemoveRow: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val listState = rememberLazyListState()
+    ScrollToNewRow(listState, rows.size)
     Column(modifier) {
         Text(
             stringResource(R.string.loan_batch_title, rows.size, PrestecsRepository.MAX_BATCH_SIZE),
             style = MaterialTheme.typography.titleSmall,
         )
-        LazyColumn {
-            // Newest first: the row just scanned stays in view.
-            items(rows.asReversed(), key = { it.portatil }) { row ->
+        LazyColumn(state = listState) {
+            items(rows, key = { it.portatil }) { row ->
                 ListItem(
+                    colors = ListItemDefaults.colors(containerColor = flashColor(row.portatil == highlighted)),
                     headlineContent = { Text(row.portatil, fontWeight = FontWeight.Bold) },
                     supportingContent = { Text(row.estudiant) },
                     trailingContent = {
@@ -317,6 +334,7 @@ private fun NewLoanPreview() {
                     PrestecRowDto("C1 - P01", "12345678 - Garcia, Maria"),
                     PrestecRowDto("C1 - P02", "87654321 - Pérez, Joan"),
                 ),
+                highlighted = "C1 - P02",
                 message = ScanMessage.PortatilAvailable("C1 - P03"),
             ),
             onCode = {},

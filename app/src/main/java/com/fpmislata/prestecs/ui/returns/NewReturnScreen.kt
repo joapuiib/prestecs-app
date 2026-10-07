@@ -47,6 +47,7 @@ import com.fpmislata.prestecs.R
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.ui.batch.ConfirmDialog
+import com.fpmislata.prestecs.ui.batch.LeaveWhenSaved
 import com.fpmislata.prestecs.ui.batch.MessageLine
 import com.fpmislata.prestecs.ui.batch.OutcomeCard
 import com.fpmislata.prestecs.ui.batch.SaveBar
@@ -60,9 +61,10 @@ import com.fpmislata.prestecs.ui.theme.PrestecsTheme
 import com.fpmislata.prestecs.ui.theme.success
 
 @Composable
-fun NewReturnScreen(onBack: () -> Unit, viewModel: NewReturnViewModel = hiltViewModel()) {
+fun NewReturnScreen(onBack: () -> Unit, onSaved: (String) -> Unit, viewModel: NewReturnViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     ScanEventsFeedback(viewModel.events)
+    LeaveWhenSaved(state.outcome, onSaved)
 
     // Laptops restored after the process was killed need their lookups again.
     LaunchedEffect(viewModel) { viewModel.resumeLookups() }

@@ -1,6 +1,9 @@
 package com.fpmislata.prestecs.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,23 +22,42 @@ object NewLoanRoute
 @Serializable
 object NewReturnRoute
 
+private const val SAVED_MESSAGE_KEY = "savedMessage"
+
+/** Back to the loans list, which shows [message] in a snackbar. */
+private fun NavController.backWithMessage(message: String) {
+    previousBackStackEntry?.savedStateHandle?.set(SAVED_MESSAGE_KEY, message)
+    popBackStack()
+}
+
 @Composable
 fun PrestecsNavHost(environment: Environment, onLogOut: () -> Unit) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = LoansRoute) {
-        composable<LoansRoute> {
+        composable<LoansRoute> { entry ->
+            // Set by a new loan or return that saved everything.
+            val savedMessage by entry.savedStateHandle.getStateFlow<String?>(SAVED_MESSAGE_KEY, null)
+                .collectAsStateWithLifecycle()
             LoansScreen(
                 environment = environment,
+                snackbarMessage = savedMessage,
+                onSnackbarShown = { entry.savedStateHandle[SAVED_MESSAGE_KEY] = null },
                 onLogOut = onLogOut,
                 onNewLoan = { navController.navigate(NewLoanRoute) },
                 onNewReturn = { navController.navigate(NewReturnRoute) },
             )
         }
         composable<NewLoanRoute> {
-            NewLoanScreen(onBack = { navController.popBackStack() })
+            NewLoanScreen(
+                onBack = { navController.popBackStack() },
+                onSaved = { navController.backWithMessage(it) },
+            )
         }
         composable<NewReturnRoute> {
-            NewReturnScreen(onBack = { navController.popBackStack() })
+            NewReturnScreen(
+                onBack = { navController.popBackStack() },
+                onSaved = { navController.backWithMessage(it) },
+            )
         }
     }
 }

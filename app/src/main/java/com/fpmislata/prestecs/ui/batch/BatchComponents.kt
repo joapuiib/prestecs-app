@@ -38,6 +38,22 @@ import com.fpmislata.prestecs.ui.theme.successContainer
 import kotlinx.coroutines.flow.Flow
 
 /**
+ * Leaves the screen once everything was saved, handing the success text to
+ * [onSaved] for the list to show. If anything failed, stays: the errors and
+ * the failed items are still needed.
+ */
+@Composable
+fun LeaveWhenSaved(outcome: SubmitOutcome?, onSaved: (String) -> Unit) {
+    val saved = outcome as? SubmitOutcome.Saved
+    val text = if (saved?.success == true) {
+        saved.messages.filter { it.severity == Severity.SUCCESS }.map { it.text() }.joinToString(" ")
+    } else {
+        null
+    }
+    LaunchedEffect(saved) { if (text != null) onSaved(text) }
+}
+
+/**
  * Room for one line of scan feedback, empty or not, so the list below doesn't
  * move when a message appears or fades.
  */

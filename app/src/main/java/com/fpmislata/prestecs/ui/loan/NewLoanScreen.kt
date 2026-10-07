@@ -50,6 +50,7 @@ import com.fpmislata.prestecs.R
 import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
 import com.fpmislata.prestecs.ui.batch.ConfirmDialog
+import com.fpmislata.prestecs.ui.batch.LeaveWhenSaved
 import com.fpmislata.prestecs.ui.batch.MessageLine
 import com.fpmislata.prestecs.ui.batch.OutcomeCard
 import com.fpmislata.prestecs.ui.batch.SaveBar
@@ -62,9 +63,10 @@ import com.fpmislata.prestecs.ui.theme.PrestecsTheme
 import com.fpmislata.prestecs.ui.theme.success
 
 @Composable
-fun NewLoanScreen(onBack: () -> Unit, viewModel: NewLoanViewModel = hiltViewModel()) {
+fun NewLoanScreen(onBack: () -> Unit, onSaved: (String) -> Unit, viewModel: NewLoanViewModel = hiltViewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     ScanEventsFeedback(viewModel.events)
+    LeaveWhenSaved(state.outcome, onSaved)
 
     NewLoanContent(
         state = state,

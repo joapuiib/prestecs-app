@@ -25,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -64,9 +66,20 @@ fun LoansScreen(
     onLogOut: () -> Unit,
     onNewLoan: () -> Unit,
     onNewReturn: () -> Unit,
+    snackbarMessage: String? = null,
+    onSnackbarShown: () -> Unit = {},
     viewModel: LoansViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    // Clear it first so it isn't shown again after a rotation.
+    LaunchedEffect(snackbarMessage) {
+        if (!snackbarMessage.isNullOrEmpty()) {
+            onSnackbarShown()
+            snackbarHostState.showSnackbar(snackbarMessage)
+        }
+    }
 
     // Reload whenever the screen becomes visible: on first display, back from
     // a new loan or return, and when the app returns to the foreground.
@@ -85,6 +98,7 @@ fun LoansScreen(
         onLogOut = onLogOut,
         onNewLoan = onNewLoan,
         onNewReturn = onNewReturn,
+        snackbarHostState = snackbarHostState,
     )
 }
 
@@ -101,9 +115,11 @@ fun LoansContent(
     onNewLoan: () -> Unit,
     onNewReturn: () -> Unit,
     modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     Scaffold(
         modifier = modifier,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {

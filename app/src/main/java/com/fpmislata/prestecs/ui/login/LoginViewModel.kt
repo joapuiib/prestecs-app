@@ -11,9 +11,11 @@ import com.fpmislata.prestecs.data.auth.AuthRepository
 import com.fpmislata.prestecs.data.auth.LoginResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -40,68 +42,78 @@ data class LoginUiState(
     val needsCredentials: Boolean get() = environment.moodleUrl != null
 }
 
+/** What the user typed. A null [username] means "not edited": show the last one used. */
+private data class LoginForm(
+    val username: String? = null,
+    val password: String = "",
+    val isLoading: Boolean = false,
+    val error: LoginError? = null,
+)
+
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val sessionRepository: SessionRepository,
-    config: AppConfig,
+    private val config: AppConfig,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        LoginUiState(
-            environment = config.defaultEnvironment,
-            canSwitchEnvironment = config.canSwitchEnvironment,
-        ),
-    )
-    val state: StateFlow<LoginUiState> = _state.asStateFlow()
+    private val form = MutableStateFlow(LoginForm())
 
-    init {
-        viewModelScope.launch {
-            val stored = sessionRepository.state.first { it !is SessionState.Loading }
-            if (stored is SessionState.LoggedOut) {
-                _state.update {
-                    it.copy(
-                        environment = stored.environment,
-                        username = it.username.ifEmpty { stored.lastUsername },
-                    )
-                }
-            }
-        }
-    }
+    // Environment and last username come from the stored session; the rest
+    // from the form.
+    val state: StateFlow<LoginUiState> = combine(
+        sessionRepository.state.filterIsInstance<SessionState.LoggedOut>(),
+        form,
+    ) { stored, form -> uiState(stored.environment, stored.lastUsername, form) }
+        .stateIn(
+            viewModelScope,
+            SharingStarted.Eagerly,
+            uiState(config.defaultEnvironment, lastUsername = "", LoginForm()),
+        )
 
-    fun onUsernameChange(value: String) = _state.update { it.copy(username = value, error = null) }
+    fun onUsernameChange(value: String) = form.update { it.copy(username = value, error = null) }
 
-    fun onPasswordChange(value: String) = _state.update { it.copy(password = value, error = null) }
+    fun onPasswordChange(value: String) = form.update { it.copy(password = value, error = null) }
 
     fun onEnvironmentChange(environment: Environment) {
-        _state.update { it.copy(environment = environment, error = null) }
+        form.update { it.copy(error = null) }
         viewModelScope.launch { sessionRepository.selectEnvironment(environment) }
     }
 
     fun onSubmit() {
-        val current = _state.value
+        val current = state.value
         if (current.isLoading) return
         if (current.needsCredentials && (current.username.isBlank() || current.password.isEmpty())) {
-            _state.update { it.copy(error = LoginError.MissingFields) }
+            form.update { it.copy(error = LoginError.MissingFields) }
             return
         }
 
-        _state.update { it.copy(isLoading = true, error = null) }
+        form.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             val result = authRepository.logIn(current.environment, current.username, current.password)
             // On success the session changes and the root leaves this screen.
-            _state.update {
+            val error = when (result) {
+                LoginResult.Success -> null
+                LoginResult.InvalidCredentials -> LoginError.InvalidCredentials
+                is LoginResult.MoodleError -> LoginError.Moodle(result.message)
+                is LoginResult.Failure -> LoginError.Api(result.error)
+            }
+            form.update {
                 it.copy(
                     isLoading = false,
-                    password = if (result == LoginResult.Success) it.password else "",
-                    error = when (result) {
-                        LoginResult.Success -> null
-                        LoginResult.InvalidCredentials -> LoginError.InvalidCredentials
-                        is LoginResult.MoodleError -> LoginError.Moodle(result.message)
-                        is LoginResult.Failure -> LoginError.Api(result.error)
-                    },
+                    password = if (error == null) it.password else "",
+                    error = error,
                 )
             }
         }
     }
+
+    private fun uiState(environment: Environment, lastUsername: String, form: LoginForm) = LoginUiState(
+        environment = environment,
+        canSwitchEnvironment = config.canSwitchEnvironment,
+        username = form.username ?: lastUsername,
+        password = form.password,
+        isLoading = form.isLoading,
+        error = form.error,
+    )
 }

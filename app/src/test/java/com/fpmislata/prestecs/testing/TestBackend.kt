@@ -3,21 +3,17 @@ package com.fpmislata.prestecs.testing
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.core.session.SessionRepository
-import com.fpmislata.prestecs.core.session.SessionState
 import com.fpmislata.prestecs.core.session.TokenCipher
 import com.fpmislata.prestecs.data.api.ApiClients
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import mockwebserver3.MockResponse
 import mockwebserver3.MockWebServer
 import okhttp3.Headers
 import okhttp3.OkHttpClient
-import org.junit.Assert.assertEquals
 import java.io.File
 import java.nio.file.Files
 
@@ -59,7 +55,6 @@ class TestBackend(
         cipher = FakeTokenCipher(),
         defaultEnvironment = defaultEnvironment,
         canSwitchEnvironment = canSwitchEnvironment,
-        scope = scope,
     )
 
     fun enqueue(code: Int, body: String) {
@@ -77,12 +72,3 @@ class TestBackend(
     }
 }
 
-/**
- * [SessionRepository.state] follows DataStore asynchronously, so right after a
- * write it can still hold the previous value. Wait for [expected] instead of
- * reading the current value.
- */
-suspend fun SessionRepository.assertStateBecomes(expected: SessionState) {
-    withTimeoutOrNull(5_000) { state.first { it == expected } }
-    assertEquals(expected, state.value)
-}

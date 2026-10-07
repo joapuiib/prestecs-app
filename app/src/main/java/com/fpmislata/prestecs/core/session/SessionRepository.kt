@@ -5,12 +5,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fpmislata.prestecs.core.config.Environment
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * Persists the current session. The token is stored encrypted; the password is
@@ -21,14 +19,17 @@ class SessionRepository(
     private val cipher: TokenCipher,
     private val defaultEnvironment: Environment,
     private val canSwitchEnvironment: Boolean,
-    scope: CoroutineScope,
 ) {
-    val state: StateFlow<SessionState> = dataStore.data
+    /**
+     * Stored session, re-emitted on every change. Cold: each collector reads
+     * DataStore, so the first value is always current. Never emits
+     * [SessionState.Loading]; that is for UI holders before the first value.
+     */
+    val state: Flow<SessionState> = dataStore.data
         .map { it.toSessionState() }
-        .stateIn(scope, SharingStarted.Eagerly, SessionState.Loading)
+        .distinctUntilChanged()
 
-    suspend fun currentSession(): Session? =
-        (dataStore.data.map { it.toSessionState() }.first() as? SessionState.LoggedIn)?.session
+    suspend fun currentSession(): Session? = (state.first() as? SessionState.LoggedIn)?.session
 
     suspend fun logIn(environment: Environment, username: String, token: String) {
         dataStore.edit {

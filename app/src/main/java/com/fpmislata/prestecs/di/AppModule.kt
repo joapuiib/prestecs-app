@@ -18,8 +18,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
@@ -76,6 +74,5 @@ object AppModule {
         cipher = cipher,
         defaultEnvironment = config.defaultEnvironment,
         canSwitchEnvironment = config.canSwitchEnvironment,
-        scope = CoroutineScope(SupervisorJob()),
     )
 }

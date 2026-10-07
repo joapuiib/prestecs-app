@@ -30,4 +30,20 @@
     <string name="error_server">Error del servidor.</string>
     <string name="error_server_with_id">Error del servidor. Código para el administrador: %1$s</string>
     <string name="error_unexpected">Se ha producido un error inesperado.</string>
+
+    <string name="action_retry">Reintentar</string>
+
+    <string name="estat_prestat">Prestado</string>
+    <string name="estat_no_retornat">No devuelto</string>
+    <string name="estat_retornat">Devuelto</string>
+
+    <plurals name="loans_count">
+        <item quantity="one">%d préstamo</item>
+        <item quantity="many">%d préstamos</item>
+        <item quantity="other">%d préstamos</item>
+    </plurals>
+    <string name="loans_empty">No hay ningún préstamo.</string>
+    <string name="loans_empty_filtered">No hay ningún préstamo con este filtro.</string>
+    <string name="loans_lent_at">Préstamo: %1$s</string>
+    <string name="loans_returned_at">Devolución: %1$s</string>
 </resources>

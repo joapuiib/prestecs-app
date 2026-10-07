@@ -99,7 +99,8 @@ Things that make the later switch seamless:
 
 1. **Login** — username + password → `POST {moodle}/login/token.php`
    (`service=moodle_mobile_app`); handle `error` in the response. Env picker in debug.
-2. **Loans list (home)** — paginated list (Paging 3, `per_page=50`), estat filter
+2. **Loans list (home)** — paginated list (`per_page=50`, next page loaded when the
+   end of the list is reached; plain ViewModel paging, no Paging 3), estat filter
    chips (multi-select → comma list), pull to refresh, colour per estat like the web
    table. FABs/buttons: *Nou préstec*, *Nova devolució*. Menu: logout, about/env.
    - The API only filters by `estat`; carro/text search would be client-side over

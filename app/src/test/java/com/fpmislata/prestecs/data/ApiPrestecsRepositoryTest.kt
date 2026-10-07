@@ -7,9 +7,9 @@ import com.fpmislata.prestecs.core.session.SessionState
 import com.fpmislata.prestecs.data.api.dto.Estat
 import com.fpmislata.prestecs.data.api.dto.PrestecRowDto
 import com.fpmislata.prestecs.data.api.dto.Severity
-import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
+import com.fpmislata.prestecs.data.prestecs.ApiPrestecsRepository
 import com.fpmislata.prestecs.testing.TestBackend
-import com.fpmislata.prestecs.testing.assertStateBecomes
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -18,14 +18,14 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class PrestecsRepositoryTest {
+class ApiPrestecsRepositoryTest {
     private lateinit var backend: TestBackend
-    private lateinit var repository: PrestecsRepository
+    private lateinit var repository: ApiPrestecsRepository
 
     @Before
     fun setUp() = runBlocking {
         backend = TestBackend()
-        repository = PrestecsRepository(backend.apiClients, backend.sessionRepository, backend.json)
+        repository = ApiPrestecsRepository(backend.apiClients, backend.sessionRepository, backend.json)
         backend.sessionRepository.logIn(Environment.STAGING, "nom.cognom", TOKEN)
     }
 
@@ -138,7 +138,7 @@ class PrestecsRepositoryTest {
         val result = repository.lookup("C1 - P01")
 
         assertEquals(ApiResult.Failure(ApiError.Unauthorized), result)
-        backend.sessionRepository.assertStateBecomes(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"))
+        assertEquals(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"), backend.sessionRepository.state.first())
     }
 
     @Test

@@ -4,7 +4,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.testing.TestBackend
-import com.fpmislata.prestecs.testing.assertStateBecomes
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -27,7 +26,7 @@ class SessionRepositoryTest {
     fun `starts logged out on the default environment`() = runBlocking {
         val repository = backend().sessionRepository
 
-        repository.assertStateBecomes(SessionState.LoggedOut(Environment.STAGING, ""))
+        assertEquals(SessionState.LoggedOut(Environment.STAGING, ""), repository.state.first())
     }
 
     @Test
@@ -35,7 +34,7 @@ class SessionRepositoryTest {
         val backend = backend()
         backend.sessionRepository.logIn(Environment.PROD, "nom.cognom", "t0k3n")
 
-        backend.sessionRepository.assertStateBecomes(SessionState.LoggedIn(Session(Environment.PROD, "t0k3n")))
+        assertEquals(SessionState.LoggedIn(Session(Environment.PROD, "t0k3n")), backend.sessionRepository.state.first())
         val raw = backend.dataStore.data.first()[stringPreferencesKey("token")]
         assertNotEquals("t0k3n", raw)
     }
@@ -47,7 +46,7 @@ class SessionRepositoryTest {
 
         repository.logOut()
 
-        repository.assertStateBecomes(SessionState.LoggedOut(Environment.PROD, "nom.cognom"))
+        assertEquals(SessionState.LoggedOut(Environment.PROD, "nom.cognom"), repository.state.first())
     }
 
     @Test
@@ -57,7 +56,7 @@ class SessionRepositoryTest {
 
         repository.selectEnvironment(Environment.LOCAL)
 
-        repository.assertStateBecomes(SessionState.LoggedOut(Environment.LOCAL, "nom.cognom"))
+        assertEquals(SessionState.LoggedOut(Environment.LOCAL, "nom.cognom"), repository.state.first())
     }
 
     @Test
@@ -67,13 +66,7 @@ class SessionRepositoryTest {
 
         repository.selectEnvironment(Environment.LOCAL)
 
-        // Read DataStore directly: the state flow could still show the session
-        // from before selectEnvironment.
-        assertEquals(Session(Environment.STAGING, "t0k3n"), repository.currentSession())
-        // Read DataStore directly: the state flow could still show the session
-        // from before selectEnvironment.
-        assertEquals(Session(Environment.STAGING, "t0k3n"), repository.currentSession())
-        repository.assertStateBecomes(SessionState.LoggedIn(Session(Environment.STAGING, "t0k3n")))
+        assertEquals(SessionState.LoggedIn(Session(Environment.STAGING, "t0k3n")), repository.state.first())
     }
 
     @Test
@@ -82,6 +75,6 @@ class SessionRepositoryTest {
         backend.sessionRepository.logIn(Environment.STAGING, "nom.cognom", "t0k3n")
         backend.dataStore.edit { it[stringPreferencesKey("token")] = "garbage" }
 
-        backend.sessionRepository.assertStateBecomes(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"))
+        assertEquals(SessionState.LoggedOut(Environment.STAGING, "nom.cognom"), backend.sessionRepository.state.first())
     }
 }

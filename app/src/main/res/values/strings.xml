@@ -30,4 +30,19 @@
     <string name="error_server">Error del servidor.</string>
     <string name="error_server_with_id">Error del servidor. Codi per a l\'administrador: %1$s</string>
     <string name="error_unexpected">S\'ha produït un error inesperat.</string>
+
+    <string name="action_retry">Torna-ho a provar</string>
+
+    <string name="estat_prestat">Prestat</string>
+    <string name="estat_no_retornat">No retornat</string>
+    <string name="estat_retornat">Retornat</string>
+
+    <plurals name="loans_count">
+        <item quantity="one">%d préstec</item>
+        <item quantity="other">%d préstecs</item>
+    </plurals>
+    <string name="loans_empty">No hi ha cap préstec.</string>
+    <string name="loans_empty_filtered">No hi ha cap préstec amb aquest filtre.</string>
+    <string name="loans_lent_at">Préstec: %1$s</string>
+    <string name="loans_returned_at">Devolució: %1$s</string>
 </resources>

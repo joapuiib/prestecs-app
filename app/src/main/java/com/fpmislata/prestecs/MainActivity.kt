@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.fpmislata.prestecs.ui.navigation.PrestecsNavHost
+import com.fpmislata.prestecs.ui.root.PrestecsRoot
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             PrestecsTheme {
-                PrestecsNavHost()
+                PrestecsRoot()
             }
         }
     }

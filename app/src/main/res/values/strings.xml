@@ -4,5 +4,30 @@
     <string name="new_loan">Nou préstec</string>
     <string name="new_return">Nova devolució</string>
     <string name="action_back">Tornar</string>
+    <string name="action_more">Més opcions</string>
+    <string name="action_log_out">Tanca la sessió</string>
     <string name="placeholder_coming_soon">Pròximament</string>
+
+    <string name="environment_prod">Producció</string>
+    <string name="environment_staging">Proves</string>
+    <string name="environment_local">Local</string>
+
+    <string name="login_subtitle">Entra amb el teu usuari de Moodle.</string>
+    <string name="login_environment">Entorn</string>
+    <string name="login_username">Usuari</string>
+    <string name="login_password">Contrasenya</string>
+    <string name="login_show_password">Mostra la contrasenya</string>
+    <string name="login_hide_password">Amaga la contrasenya</string>
+    <string name="login_submit">Entra</string>
+    <string name="login_local_hint">Entorn local: no cal usuari ni contrasenya.</string>
+    <string name="login_error_missing_fields">Escriu l\'usuari i la contrasenya.</string>
+    <string name="login_error_invalid_credentials">L\'usuari o la contrasenya no són correctes.</string>
+    <string name="login_error_moodle">Moodle: %1$s</string>
+
+    <string name="error_network">No s\'ha pogut connectar amb el servidor. Comprova la connexió.</string>
+    <string name="error_unauthorized">La sessió ha caducat. Torna a entrar.</string>
+    <string name="error_forbidden">No tens permís per a fer aquesta acció.</string>
+    <string name="error_server">Error del servidor.</string>
+    <string name="error_server_with_id">Error del servidor. Codi per a l\'administrador: %1$s</string>
+    <string name="error_unexpected">S\'ha produït un error inesperat.</string>
 </resources>

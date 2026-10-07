@@ -4,5 +4,30 @@
     <string name="new_loan">Nuevo préstamo</string>
     <string name="new_return">Nueva devolución</string>
     <string name="action_back">Volver</string>
+    <string name="action_more">Más opciones</string>
+    <string name="action_log_out">Cerrar sesión</string>
     <string name="placeholder_coming_soon">Próximamente</string>
+
+    <string name="environment_prod">Producción</string>
+    <string name="environment_staging">Pruebas</string>
+    <string name="environment_local">Local</string>
+
+    <string name="login_subtitle">Entra con tu usuario de Moodle.</string>
+    <string name="login_environment">Entorno</string>
+    <string name="login_username">Usuario</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_show_password">Mostrar la contraseña</string>
+    <string name="login_hide_password">Ocultar la contraseña</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_local_hint">Entorno local: no hace falta usuario ni contraseña.</string>
+    <string name="login_error_missing_fields">Escribe el usuario y la contraseña.</string>
+    <string name="login_error_invalid_credentials">El usuario o la contraseña no son correctos.</string>
+    <string name="login_error_moodle">Moodle: %1$s</string>
+
+    <string name="error_network">No se ha podido conectar con el servidor. Comprueba la conexión.</string>
+    <string name="error_unauthorized">La sesión ha caducado. Vuelve a entrar.</string>
+    <string name="error_forbidden">No tienes permiso para realizar esta acción.</string>
+    <string name="error_server">Error del servidor.</string>
+    <string name="error_server_with_id">Error del servidor. Código para el administrador: %1$s</string>
+    <string name="error_unexpected">Se ha producido un error inesperado.</string>
 </resources>

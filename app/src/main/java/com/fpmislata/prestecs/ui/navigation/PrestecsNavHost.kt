@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.ui.loan.NewLoanScreen
 import com.fpmislata.prestecs.ui.loans.LoansScreen
 import com.fpmislata.prestecs.ui.returns.NewReturnScreen
@@ -19,11 +20,13 @@ object NewLoanRoute
 object NewReturnRoute
 
 @Composable
-fun PrestecsNavHost() {
+fun PrestecsNavHost(environment: Environment, onLogOut: () -> Unit) {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = LoansRoute) {
         composable<LoansRoute> {
             LoansScreen(
+                environment = environment,
+                onLogOut = onLogOut,
                 onNewLoan = { navController.navigate(NewLoanRoute) },
                 onNewReturn = { navController.navigate(NewReturnRoute) },
             )

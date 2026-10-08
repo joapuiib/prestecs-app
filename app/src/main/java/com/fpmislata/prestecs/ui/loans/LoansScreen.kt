@@ -6,15 +6,19 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -149,14 +153,14 @@ fun LoansContent(
                         }
                     }
                 },
-                actions = { OverflowMenu(onLogOut = onLogOut) },
+                actions = { OverflowMenu(onHistory = onHistory, onLogOut = onLogOut) },
             )
         },
         bottomBar = { ActionsBar(onNewLoan = onNewLoan, onNewReturn = onNewReturn) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             SearchField(query = state.query, onQueryChange = onQueryChange)
-            StatsRow(state = state, onToggleOverdue = onToggleOverdue, onHistory = onHistory)
+            StatsRow(state = state, onToggleOverdue = onToggleOverdue)
             PullToRefreshBox(
                 isRefreshing = state.isRefreshing,
                 onRefresh = onRefresh,
@@ -191,7 +195,7 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun StatsRow(state: LoansUiState, onToggleOverdue: () -> Unit, onHistory: () -> Unit) {
+private fun StatsRow(state: LoansUiState, onToggleOverdue: () -> Unit) {
     FlowRow(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -213,7 +217,6 @@ private fun StatsRow(state: LoansUiState, onToggleOverdue: () -> Unit, onHistory
                 )
             },
         )
-        OutlinedButton(onClick = onHistory) { Text(stringResource(R.string.loans_history)) }
     }
 }
 
@@ -320,21 +323,9 @@ private fun LoanRow(loan: OpenLoan) {
     ) {
         Column(Modifier.weight(1f)) {
             Text(prestec.portatil, fontWeight = FontWeight.Bold)
-            Text(
-                prestec.estudiant,
-                style = MaterialTheme.typography.bodySmall,
-                color = muted,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            PersonLine(R.drawable.ic_school, stringResource(R.string.loans_student), prestec.estudiant)
             prestec.prestecProfessor?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    stringResource(R.string.loans_professor, it),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = muted,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                PersonLine(R.drawable.ic_person, stringResource(R.string.loans_professor), it)
             }
         }
         Column(horizontalAlignment = Alignment.End) {
@@ -354,6 +345,29 @@ private fun LoanRow(loan: OpenLoan) {
     }
 }
 
+/** Small muted line led by an icon that names the role, as on the web. */
+@Composable
+private fun PersonLine(icon: Int, role: String, name: String) {
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(painterResource(icon), contentDescription = role, tint = muted, modifier = Modifier.size(14.dp))
+        Text(
+            name,
+            style = MaterialTheme.typography.bodySmall,
+            color = muted,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+/** Icon at the start of a button label. */
+@Composable
+private fun RowScope.ButtonIcon(icon: Int) {
+    Icon(painterResource(icon), contentDescription = null, modifier = Modifier.size(ButtonDefaults.IconSize))
+    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+}
+
 @Composable
 private fun ActionsBar(onNewLoan: () -> Unit, onNewReturn: () -> Unit) {
     Surface(tonalElevation = 3.dp) {
@@ -365,9 +379,11 @@ private fun ActionsBar(onNewLoan: () -> Unit, onNewReturn: () -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Button(onClick = onNewLoan, modifier = Modifier.weight(1f)) {
+                ButtonIcon(R.drawable.ic_laptop)
                 Text(stringResource(R.string.new_loan))
             }
             FilledTonalButton(onClick = onNewReturn, modifier = Modifier.weight(1f)) {
+                ButtonIcon(R.drawable.ic_undo)
                 Text(stringResource(R.string.new_return))
             }
         }
@@ -375,7 +391,7 @@ private fun ActionsBar(onNewLoan: () -> Unit, onNewReturn: () -> Unit) {
 }
 
 @Composable
-private fun OverflowMenu(onLogOut: () -> Unit) {
+private fun OverflowMenu(onHistory: () -> Unit, onLogOut: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     IconButton(onClick = { expanded = true }) {
         Icon(
@@ -384,6 +400,14 @@ private fun OverflowMenu(onLogOut: () -> Unit) {
         )
     }
     DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.loans_history)) },
+            leadingIcon = { Icon(painterResource(R.drawable.ic_history), contentDescription = null) },
+            onClick = {
+                expanded = false
+                onHistory()
+            },
+        )
         DropdownMenuItem(
             text = { Text(stringResource(R.string.action_log_out)) },
             onClick = {

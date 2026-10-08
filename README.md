@@ -17,7 +17,7 @@ its JSON API.
   first, counts of *actius* and *no retornats* per carro, long cards folded behind
   *Mostra N més*. Search by laptop, student or teacher, and tap *No retornats* to
   show only those. Pull to refresh.
-- **Històric**: every loan, newest first, 50 per page (more load at the end of the
+- **Històric** (overflow menu): every loan, newest first, 50 per page (more load at the end of the
   list), filter by state (*Prestat*, *No retornat*, *Retornat*).
 - **New loan**: scan a laptop (checked: code format, not already in the batch,
   not already lent) → scan the student card → repeat; then confirm and save the

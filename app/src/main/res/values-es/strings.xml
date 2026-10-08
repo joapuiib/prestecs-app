@@ -73,7 +73,8 @@
     </plurals>
     <string name="loans_show_more">Muestra %1$d más</string>
     <string name="loans_show_less">Muestra menos</string>
-    <string name="loans_professor">Prof.: %1$s</string>
+    <string name="loans_student">Estudiante</string>
+    <string name="loans_professor">Profesor</string>
     <string name="scanner_camera_unavailable">No se ha podido abrir la cámara. Puedes escribir el código a mano.</string>
     <string name="scanner_torch">Linterna</string>
     <string name="scanner_permission_rationale">Hace falta acceso a la cámara para leer los códigos QR de los portátiles y de los carnés.</string>

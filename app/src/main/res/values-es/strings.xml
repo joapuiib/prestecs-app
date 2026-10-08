@@ -45,6 +45,35 @@
     <string name="loans_empty_filtered">No hay ningún préstamo con este filtro.</string>
     <string name="loans_lent_at">Préstamo: %1$s</string>
     <string name="loans_returned_at">Devolución: %1$s</string>
+
+    <string name="history_title">Histórico de préstamos</string>
+    <string name="loans_history">Histórico</string>
+    <string name="loans_search_hint">Busca portátil, estudiante o profesor</string>
+    <string name="loans_search_clear">Borra la búsqueda</string>
+    <string name="loans_stat_active">Préstamos activos: %1$d</string>
+    <string name="loans_stat_overdue">No devueltos: %1$d</string>
+    <string name="loans_no_carro">(sin carro)</string>
+    <string name="loans_none_active">No hay ningún préstamo activo.</string>
+    <string name="loans_no_results">Ningún resultado.</string>
+    <string name="loans_age_today">hoy</string>
+    <plurals name="loans_age_days">
+        <item quantity="one">hace %d día</item>
+        <item quantity="many">hace %d días</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <plurals name="loans_carro_active">
+        <item quantity="one">%d activo</item>
+        <item quantity="many">%d activos</item>
+        <item quantity="other">%d activos</item>
+    </plurals>
+    <plurals name="loans_carro_overdue">
+        <item quantity="one">%d no devuelto</item>
+        <item quantity="many">%d no devueltos</item>
+        <item quantity="other">%d no devueltos</item>
+    </plurals>
+    <string name="loans_show_more">Muestra %1$d más</string>
+    <string name="loans_show_less">Muestra menos</string>
+    <string name="loans_professor">Prof.: %1$s</string>
     <string name="scanner_camera_unavailable">No se ha podido abrir la cámara. Puedes escribir el código a mano.</string>
     <string name="scanner_torch">Linterna</string>
     <string name="scanner_permission_rationale">Hace falta acceso a la cámara para leer los códigos QR de los portátiles y de los carnés.</string>

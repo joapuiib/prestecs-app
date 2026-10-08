@@ -44,6 +44,32 @@
     <string name="loans_empty_filtered">No hi ha cap préstec amb aquest filtre.</string>
     <string name="loans_lent_at">Préstec: %1$s</string>
     <string name="loans_returned_at">Devolució: %1$s</string>
+
+    <string name="history_title">Històric de préstecs</string>
+    <string name="loans_history">Històric</string>
+    <string name="loans_search_hint">Cerca portàtil, estudiant o professor</string>
+    <string name="loans_search_clear">Esborra la cerca</string>
+    <string name="loans_stat_active">Préstecs actius: %1$d</string>
+    <string name="loans_stat_overdue">No retornats: %1$d</string>
+    <string name="loans_no_carro">(sense carro)</string>
+    <string name="loans_none_active">No hi ha cap préstec actiu.</string>
+    <string name="loans_no_results">Cap resultat.</string>
+    <string name="loans_age_today">avui</string>
+    <plurals name="loans_age_days">
+        <item quantity="one">fa %d dia</item>
+        <item quantity="other">fa %d dies</item>
+    </plurals>
+    <plurals name="loans_carro_active">
+        <item quantity="one">%d actiu</item>
+        <item quantity="other">%d actius</item>
+    </plurals>
+    <plurals name="loans_carro_overdue">
+        <item quantity="one">%d no retornat</item>
+        <item quantity="other">%d no retornats</item>
+    </plurals>
+    <string name="loans_show_more">Mostra %1$d més</string>
+    <string name="loans_show_less">Mostra\'n menys</string>
+    <string name="loans_professor">Prof.: %1$s</string>
     <string name="scanner_camera_unavailable">No s\'ha pogut obrir la càmera. Pots escriure el codi a mà.</string>
     <string name="scanner_torch">Llanterna</string>
     <string name="scanner_permission_rationale">Cal accés a la càmera per a llegir els codis QR dels portàtils i dels carnets.</string>

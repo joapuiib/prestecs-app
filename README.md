@@ -13,8 +13,12 @@ its JSON API.
 
 - **Sign in** with the Moodle account. The app keeps only a Moodle mobile token,
   encrypted with an Android Keystore key; the password is never stored.
-- **Loan list**: newest first, 50 per page (more load at the end of the list),
-  filter by state (*Prestat*, *No retornat*, *Retornat*), pull to refresh.
+- **Loans (home)**: open loans grouped by carro in cards, as on the web: oldest
+  first, counts of *actius* and *no retornats* per carro, long cards folded behind
+  *Mostra N més*. Search by laptop, student or teacher, and tap *No retornats* to
+  show only those. Pull to refresh.
+- **Històric**: every loan, newest first, 50 per page (more load at the end of the
+  list), filter by state (*Prestat*, *No retornat*, *Retornat*).
 - **New loan**: scan a laptop (checked: code format, not already in the batch,
   not already lent) → scan the student card → repeat; then confirm and save the
   batch (up to 50). Rows that fail stay in the list with the reason.

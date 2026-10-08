@@ -1,19 +1,20 @@
 package com.fpmislata.prestecs.ui.loans
 
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridItemSpan
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,8 +23,10 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -37,13 +40,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -54,11 +60,18 @@ import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.data.api.dto.Estat
 import com.fpmislata.prestecs.data.api.dto.PrestecDto
-import com.fpmislata.prestecs.ui.components.EstatBadge
+import com.fpmislata.prestecs.domain.CarroGroup
+import com.fpmislata.prestecs.domain.OpenLoan
+import com.fpmislata.prestecs.domain.groupByCarro
+import com.fpmislata.prestecs.ui.components.CenteredText
+import com.fpmislata.prestecs.ui.components.ErrorMessage
 import com.fpmislata.prestecs.ui.components.formatApiDate
 import com.fpmislata.prestecs.ui.components.label
-import com.fpmislata.prestecs.ui.components.message
 import com.fpmislata.prestecs.ui.theme.PrestecsTheme
+import java.time.LocalDate
+
+/** Rows a card shows before folding the rest behind "show more". */
+private const val VISIBLE_ROWS = 5
 
 @Composable
 fun LoansScreen(
@@ -66,6 +79,7 @@ fun LoansScreen(
     onLogOut: () -> Unit,
     onNewLoan: () -> Unit,
     onNewReturn: () -> Unit,
+    onHistory: () -> Unit,
     snackbarMessage: String? = null,
     onSnackbarShown: () -> Unit = {},
     viewModel: LoansViewModel = hiltViewModel(),
@@ -91,13 +105,13 @@ fun LoansScreen(
     LoansContent(
         state = state,
         environment = environment,
-        onFilterChange = viewModel::onFilterChange,
+        onQueryChange = viewModel::onQueryChange,
+        onToggleOverdue = viewModel::toggleOnlyOverdue,
         onRefresh = viewModel::refresh,
-        onLoadMore = viewModel::loadMore,
-        onRetryLoadMore = viewModel::retryLoadMore,
         onLogOut = onLogOut,
         onNewLoan = onNewLoan,
         onNewReturn = onNewReturn,
+        onHistory = onHistory,
         snackbarHostState = snackbarHostState,
     )
 }
@@ -107,13 +121,13 @@ fun LoansScreen(
 fun LoansContent(
     state: LoansUiState,
     environment: Environment,
-    onFilterChange: (Estat, Boolean) -> Unit,
+    onQueryChange: (String) -> Unit,
+    onToggleOverdue: () -> Unit,
     onRefresh: () -> Unit,
-    onLoadMore: () -> Unit,
-    onRetryLoadMore: () -> Unit,
     onLogOut: () -> Unit,
     onNewLoan: () -> Unit,
     onNewReturn: () -> Unit,
+    onHistory: () -> Unit,
     modifier: Modifier = Modifier,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
@@ -141,104 +155,202 @@ fun LoansContent(
         bottomBar = { ActionsBar(onNewLoan = onNewLoan, onNewReturn = onNewReturn) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            FilterRow(filter = state.filter, total = state.total, onFilterChange = onFilterChange)
+            SearchField(query = state.query, onQueryChange = onQueryChange)
+            StatsRow(state = state, onToggleOverdue = onToggleOverdue, onHistory = onHistory)
             PullToRefreshBox(
                 isRefreshing = state.isRefreshing,
                 onRefresh = onRefresh,
                 modifier = Modifier.fillMaxSize(),
             ) {
-                LoansList(state, onRefresh, onLoadMore, onRetryLoadMore)
+                Cards(state = state, onRetry = onRefresh)
             }
         }
     }
 }
 
 @Composable
-private fun LoansList(state: LoansUiState, onRetry: () -> Unit, onLoadMore: () -> Unit, onRetryLoadMore: () -> Unit) {
-    // The list stays scrollable even when empty, so pull to refresh works.
-    LazyColumn(modifier = Modifier.fillMaxSize()) {
-        if (state.error != null) {
-            item(key = "error") {
-                ErrorMessage(error = state.error, onRetry = onRetry)
-            }
-        } else if (state.prestecs.isEmpty() && state.total != null) {
-            item(key = "empty") {
-                CenteredText(
-                    stringResource(
-                        if (state.filter.isEmpty()) R.string.loans_empty else R.string.loans_empty_filtered,
-                    ),
-                )
-            }
-        }
-
-        items(state.prestecs, key = { it.id }) { prestec ->
-            LoanItem(prestec)
-            HorizontalDivider()
-        }
-
-        when {
-            state.loadMoreError != null -> item(key = "load-more-error") {
-                ErrorMessage(error = state.loadMoreError, onRetry = onRetryLoadMore)
-            }
-
-            state.hasMore -> item(key = "load-more") {
-                // Composed when scrolled into view: ask for the next page.
-                // Keyed by size so a page that still leaves it visible
-                // triggers the next one.
-                LaunchedEffect(state.prestecs.size) { onLoadMore() }
-                Box(Modifier.fillMaxWidth().padding(16.dp), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
+    OutlinedTextField(
+        value = query,
+        onValueChange = onQueryChange,
+        singleLine = true,
+        placeholder = { Text(stringResource(R.string.loans_search_hint)) },
+        trailingIcon = {
+            if (query.isNotEmpty()) {
+                IconButton(onClick = { onQueryChange("") }) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_close),
+                        contentDescription = stringResource(R.string.loans_search_clear),
+                    )
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun LoanItem(prestec: PrestecDto) {
-    ListItem(
-        headlineContent = { Text(prestec.portatil, fontWeight = FontWeight.Bold) },
-        supportingContent = {
-            Column {
-                Text(prestec.estudiant)
-                val returned = prestec.devolucioData
-                Text(
-                    if (returned != null) {
-                        stringResource(R.string.loans_returned_at, formatApiDate(returned))
-                    } else {
-                        stringResource(R.string.loans_lent_at, formatApiDate(prestec.prestecData))
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
         },
-        trailingContent = { EstatBadge(prestec.estat) },
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun FilterRow(filter: Set<Estat>, total: Int?, onFilterChange: (Estat, Boolean) -> Unit) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-        Row(
-            modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Estat.entries.forEach { estat ->
-                val selected = estat in filter
-                FilterChip(
-                    selected = selected,
-                    onClick = { onFilterChange(estat, !selected) },
-                    label = { Text(estat.label()) },
+private fun StatsRow(state: LoansUiState, onToggleOverdue: () -> Unit, onHistory: () -> Unit) {
+    FlowRow(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            stringResource(R.string.loans_stat_active, state.activeCount),
+            style = MaterialTheme.typography.bodyMedium,
+        )
+        // Tapping it narrows the cards to what wasn't returned, like the web.
+        FilterChip(
+            selected = state.onlyOverdue,
+            onClick = onToggleOverdue,
+            label = {
+                Text(
+                    stringResource(R.string.loans_stat_overdue, state.overdueCount),
+                    color = if (state.overdueCount > 0) MaterialTheme.colorScheme.error else Color.Unspecified,
+                )
+            },
+        )
+        OutlinedButton(onClick = onHistory) { Text(stringResource(R.string.loans_history)) }
+    }
+}
+
+@Composable
+private fun Cards(state: LoansUiState, onRetry: () -> Unit) {
+    val groups = state.visibleGroups
+    // One column on a phone, more on a tablet. Always scrollable, even when
+    // empty, so pull to refresh works.
+    LazyVerticalStaggeredGrid(
+        columns = StaggeredGridCells.Adaptive(minSize = 340.dp),
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = PaddingValues(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalItemSpacing = 16.dp,
+    ) {
+        if (state.error != null) {
+            item(key = "error", span = StaggeredGridItemSpan.FullLine) {
+                ErrorMessage(error = state.error, onRetry = onRetry)
+            }
+        } else if (groups.isEmpty() && state.isLoaded) {
+            item(key = "empty", span = StaggeredGridItemSpan.FullLine) {
+                CenteredText(
+                    stringResource(if (state.isFiltering) R.string.loans_no_results else R.string.loans_none_active),
                 )
             }
         }
+
+        items(groups, key = { it.carro }) { group ->
+            CarroCard(group = group, foldRows = !state.isFiltering)
+        }
+    }
+}
+
+@Composable
+private fun CarroCard(group: CarroGroup, foldRows: Boolean) {
+    var expanded by rememberSaveable(group.carro) { mutableStateOf(false) }
+    val folded = foldRows && !expanded
+    val shown = if (folded) group.loans.take(VISIBLE_ROWS) else group.loans
+    val hidden = group.loans.size - VISIBLE_ROWS
+
+    OutlinedCard(Modifier.fillMaxWidth()) {
+        CarroHeader(group)
+        shown.forEach { loan ->
+            HorizontalDivider()
+            LoanRow(loan)
+        }
+        // Not while searching: every match is shown.
+        if (foldRows && hidden > 0) {
+            HorizontalDivider()
+            TextButton(onClick = { expanded = !expanded }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                Text(
+                    if (expanded) {
+                        stringResource(R.string.loans_show_less)
+                    } else {
+                        stringResource(R.string.loans_show_more, hidden)
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CarroHeader(group: CarroGroup) {
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.Bottom,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
         Text(
-            text = total?.let { pluralStringResource(R.plurals.loans_count, it, it) } ?: "",
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(bottom = 8.dp),
+            group.carro.ifEmpty { stringResource(R.string.loans_no_carro) },
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.weight(1f),
         )
+        val muted = MaterialTheme.colorScheme.onSurfaceVariant
+        if (group.overdue > 0) {
+            Text(
+                pluralStringResource(R.plurals.loans_carro_overdue, group.overdue, group.overdue),
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.error,
+            )
+        }
+        if (group.overdue > 0 && group.active > 0) {
+            Text("·", style = MaterialTheme.typography.labelMedium, color = muted)
+        }
+        if (group.active > 0) {
+            Text(
+                pluralStringResource(R.plurals.loans_carro_active, group.active, group.active),
+                style = MaterialTheme.typography.labelMedium,
+                color = muted,
+            )
+        }
+    }
+}
+
+@Composable
+private fun LoanRow(loan: OpenLoan) {
+    val prestec = loan.prestec
+    val muted = MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(prestec.portatil, fontWeight = FontWeight.Bold)
+            Text(
+                prestec.estudiant,
+                style = MaterialTheme.typography.bodySmall,
+                color = muted,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            prestec.prestecProfessor?.takeIf { it.isNotBlank() }?.let {
+                Text(
+                    stringResource(R.string.loans_professor, it),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = muted,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Column(horizontalAlignment = Alignment.End) {
+            // Red for anything older than today: it is overdue.
+            Text(
+                if (loan.ageDays <= 0) {
+                    stringResource(R.string.loans_age_today)
+                } else {
+                    pluralStringResource(R.plurals.loans_age_days, loan.ageDays, loan.ageDays)
+                },
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = if (loan.ageDays > 0) FontWeight.SemiBold else FontWeight.Normal,
+                color = if (loan.ageDays > 0) MaterialTheme.colorScheme.error else muted,
+            )
+            Text(formatApiDate(prestec.prestecData), style = MaterialTheme.typography.bodySmall, color = muted)
+        }
     }
 }
 
@@ -263,24 +375,6 @@ private fun ActionsBar(onNewLoan: () -> Unit, onNewReturn: () -> Unit) {
 }
 
 @Composable
-private fun ErrorMessage(error: ApiError, onRetry: () -> Unit) {
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(error.message(), color = MaterialTheme.colorScheme.error)
-        TextButton(onClick = onRetry) { Text(stringResource(R.string.action_retry)) }
-    }
-}
-
-@Composable
-private fun CenteredText(text: String) {
-    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-        Text(text, color = MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
 private fun OverflowMenu(onLogOut: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
     IconButton(onClick = { expanded = true }) {
@@ -300,32 +394,37 @@ private fun OverflowMenu(onLogOut: () -> Unit) {
     }
 }
 
-private val previewPrestecs = listOf(
-    PrestecDto(
-        id = 3,
-        carro = "C1",
-        portatil = "C1 - P03",
-        estudiant = "12345678 - Garcia, Maria",
-        prestecData = "2026-10-07 08:15:00",
-        estat = Estat.PRESTAT,
+private fun previewGroups() = groupByCarro(
+    listOf(
+        PrestecDto(
+            1,
+            "C1",
+            "C1 - P03",
+            "12345678 - Garcia, Maria",
+            "2026-10-07 08:15:00",
+            "Joan",
+            estat = Estat.PRESTAT,
+        ),
+        PrestecDto(
+            2,
+            "C1",
+            "C1 - P02",
+            "87654321 - Pérez, Joan",
+            "2026-10-05 09:00:00",
+            "Anna",
+            estat = Estat.NO_RETORNAT,
+        ),
+        PrestecDto(
+            3,
+            "C2",
+            "C2 - P11",
+            "11223344 - Soler, Anna",
+            "2026-10-06 08:00:00",
+            null,
+            estat = Estat.NO_RETORNAT,
+        ),
     ),
-    PrestecDto(
-        id = 2,
-        carro = "C1",
-        portatil = "C1 - P02",
-        estudiant = "87654321 - Pérez, Joan",
-        prestecData = "2026-10-06 09:00:00",
-        estat = Estat.NO_RETORNAT,
-    ),
-    PrestecDto(
-        id = 1,
-        carro = "C2",
-        portatil = "C2 - P11",
-        estudiant = "11223344 - Soler, Anna",
-        prestecData = "2026-10-06 08:00:00",
-        devolucioData = "2026-10-06 14:00:00",
-        estat = Estat.RETORNAT,
-    ),
+    today = LocalDate.of(2026, 10, 7),
 )
 
 @Preview(showBackground = true)
@@ -333,15 +432,15 @@ private val previewPrestecs = listOf(
 private fun LoansPreview() {
     PrestecsTheme {
         LoansContent(
-            state = LoansUiState(prestecs = previewPrestecs, total = 3),
+            state = LoansUiState(groups = previewGroups(), isLoaded = true),
             environment = Environment.STAGING,
-            onFilterChange = { _, _ -> },
+            onQueryChange = {},
+            onToggleOverdue = {},
             onRefresh = {},
-            onLoadMore = {},
-            onRetryLoadMore = {},
             onLogOut = {},
             onNewLoan = {},
             onNewReturn = {},
+            onHistory = {},
         )
     }
 }
@@ -351,15 +450,15 @@ private fun LoansPreview() {
 private fun LoansErrorPreview() {
     PrestecsTheme {
         LoansContent(
-            state = LoansUiState(filter = setOf(Estat.PRESTAT), error = ApiError.Server("abc123")),
+            state = LoansUiState(error = ApiError.Server("abc123")),
             environment = Environment.PROD,
-            onFilterChange = { _, _ -> },
+            onQueryChange = {},
+            onToggleOverdue = {},
             onRefresh = {},
-            onLoadMore = {},
-            onRetryLoadMore = {},
             onLogOut = {},
             onNewLoan = {},
             onNewReturn = {},
+            onHistory = {},
         )
     }
 }

@@ -4,10 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.core.network.ApiResult
-import com.fpmislata.prestecs.data.api.dto.Estat
-import com.fpmislata.prestecs.data.api.dto.PrestecDto
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
+import com.fpmislata.prestecs.domain.CarroGroup
+import com.fpmislata.prestecs.domain.filterGroups
+import com.fpmislata.prestecs.domain.groupByCarro
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.time.Clock
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,93 +21,70 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class LoansUiState(
-    /** Empty means all states. */
-    val filter: Set<Estat> = emptySet(),
-    val prestecs: List<PrestecDto> = emptyList(),
-    /** Loans matching [filter] on the server; null until the first page arrives. */
-    val total: Int? = null,
-    /** Loading the first page, initially or on pull to refresh. */
+    /** Every open loan, by carro. */
+    val groups: List<CarroGroup> = emptyList(),
+    val query: String = "",
+    val onlyOverdue: Boolean = false,
+    /** Loading, initially or on pull to refresh. */
     val isRefreshing: Boolean = false,
-    val isLoadingMore: Boolean = false,
-    val hasMore: Boolean = false,
-    /** The first page failed. */
+    /** Whether a load has finished at least once, so "empty" isn't shown too early. */
+    val isLoaded: Boolean = false,
     val error: ApiError? = null,
-    /** A later page failed; loading more stops until [LoansViewModel.retryLoadMore]. */
-    val loadMoreError: ApiError? = null,
-)
+) {
+    /** [groups] narrowed by the search and the overdue toggle. */
+    val visibleGroups: List<CarroGroup> get() = filterGroups(groups, query, onlyOverdue)
 
+    /** Lent today. */
+    val activeCount: Int get() = groups.sumOf { it.active }
+
+    /** Lent on a previous day and not returned. */
+    val overdueCount: Int get() = groups.sumOf { it.overdue }
+
+    /** Folded rows are shown in full while searching, like the web. */
+    val isFiltering: Boolean get() = query.isNotBlank() || onlyOverdue
+}
+
+/**
+ * Home screen: open loans grouped by carro, as on the web. All of them are
+ * loaded at once (they are few) and searched and filtered here.
+ */
 @HiltViewModel
 class LoansViewModel @Inject constructor(private val repository: PrestecsRepository) : ViewModel() {
+
+    /** Defines "today" for the loans' age: the web uses Madrid time. */
+    internal var clock: Clock = Clock.system(ZoneId.of("Europe/Madrid"))
 
     private val _state = MutableStateFlow(LoansUiState())
     val state: StateFlow<LoansUiState> = _state.asStateFlow()
 
-    // Only one load at a time: a refresh or filter change cancels the
-    // previous one so a stale page never lands in the list.
+    // A refresh replaces the one in flight.
     private var loadJob: Job? = null
-    private var loadedPages = 0
 
-    /** Reloads from the first page. The screen calls it whenever it is shown. */
+    /** Reloads. The screen calls it whenever it is shown. */
     fun refresh() {
-        _state.update { it.copy(isRefreshing = true, isLoadingMore = false, error = null, loadMoreError = null) }
-        load(page = 1)
-    }
-
-    fun onFilterChange(estat: Estat, selected: Boolean) {
-        _state.update {
-            val filter = if (selected) it.filter + estat else it.filter - estat
-            // Drop the old results: they don't match the new filter.
-            it.copy(filter = filter, prestecs = emptyList(), total = null, hasMore = false)
-        }
-        refresh()
-    }
-
-    /** Called when the end of the list is reached. */
-    fun loadMore() {
-        val current = _state.value
-        if (loadJob?.isActive == true || !current.hasMore || current.loadMoreError != null) return
-        _state.update { it.copy(isLoadingMore = true) }
-        load(page = loadedPages + 1)
-    }
-
-    fun retryLoadMore() {
-        _state.update { it.copy(loadMoreError = null) }
-        loadMore()
-    }
-
-    private fun load(page: Int) {
+        _state.update { it.copy(isRefreshing = true, error = null) }
         loadJob?.cancel()
-        val filter = _state.value.filter
         loadJob = viewModelScope.launch {
-            val result = repository.list(filter, page)
+            val result = repository.listOpen()
             _state.update { current ->
                 when (result) {
-                    is ApiResult.Success -> {
-                        val loaded = result.value
-                        // Pages are offsets: loans created meanwhile shift them,
-                        // so a later page can repeat items already shown.
-                        val prestecs = if (page == 1) {
-                            loaded.prestecs
-                        } else {
-                            (current.prestecs + loaded.prestecs).distinctBy { it.id }
-                        }
-                        current.copy(
-                            prestecs = prestecs,
-                            total = loaded.pagination.total,
-                            hasMore = page < loaded.pagination.totalPages,
-                            isRefreshing = false,
-                            isLoadingMore = false,
-                        )
-                    }
+                    is ApiResult.Success -> current.copy(
+                        groups = groupByCarro(result.value, LocalDate.now(clock)),
+                        isRefreshing = false,
+                        isLoaded = true,
+                    )
 
-                    is ApiResult.Failure -> if (page == 1) {
-                        current.copy(isRefreshing = false, error = result.error)
-                    } else {
-                        current.copy(isLoadingMore = false, loadMoreError = result.error)
-                    }
+                    is ApiResult.Failure -> current.copy(isRefreshing = false, error = result.error)
                 }
             }
-            if (result is ApiResult.Success) loadedPages = page
         }
+    }
+
+    fun onQueryChange(query: String) {
+        _state.update { it.copy(query = query) }
+    }
+
+    fun toggleOnlyOverdue() {
+        _state.update { it.copy(onlyOverdue = !it.onlyOverdue) }
     }
 }

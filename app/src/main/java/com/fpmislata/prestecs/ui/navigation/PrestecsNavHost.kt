@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.fpmislata.prestecs.core.config.Environment
+import com.fpmislata.prestecs.ui.history.HistoryScreen
 import com.fpmislata.prestecs.ui.loan.NewLoanScreen
 import com.fpmislata.prestecs.ui.loans.LoansScreen
 import com.fpmislata.prestecs.ui.returns.NewReturnScreen
@@ -15,6 +16,9 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 object LoansRoute
+
+@Serializable
+object HistoryRoute
 
 @Serializable
 object NewLoanRoute
@@ -45,7 +49,11 @@ fun PrestecsNavHost(environment: Environment, onLogOut: () -> Unit) {
                 onLogOut = onLogOut,
                 onNewLoan = { navController.navigate(NewLoanRoute) },
                 onNewReturn = { navController.navigate(NewReturnRoute) },
+                onHistory = { navController.navigate(HistoryRoute) },
             )
+        }
+        composable<HistoryRoute> {
+            HistoryScreen(onBack = { navController.popBackStack() })
         }
         composable<NewLoanRoute> {
             NewLoanScreen(

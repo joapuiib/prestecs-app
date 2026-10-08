@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Préstecs</string>
+    <string name="new_loan">Nou préstec</string>
+    <string name="new_return">Nova devolució</string>
+    <string name="action_back">Tornar</string>
+    <string name="action_more">Més opcions</string>
+    <string name="action_log_out">Tanca la sessió</string>
+
+    <string name="environment_prod">Producció</string>
+    <string name="environment_staging">Proves</string>
+    <string name="environment_local">Local</string>
+
+    <string name="login_subtitle">Entra amb el teu usuari de Moodle.</string>
+    <string name="login_environment">Entorn</string>
+    <string name="login_username">Usuari</string>
+    <string name="login_password">Contrasenya</string>
+    <string name="login_show_password">Mostra la contrasenya</string>
+    <string name="login_hide_password">Amaga la contrasenya</string>
+    <string name="login_submit">Entra</string>
+    <string name="login_local_hint">Entorn local: no cal usuari ni contrasenya.</string>
+    <string name="login_error_missing_fields">Escriu l\'usuari i la contrasenya.</string>
+    <string name="login_error_invalid_credentials">L\'usuari o la contrasenya no són correctes.</string>
+    <string name="login_error_moodle">Moodle: %1$s</string>
+
+    <string name="error_network">No s\'ha pogut connectar amb el servidor. Comprova la connexió.</string>
+    <string name="error_unauthorized">La sessió ha caducat. Torna a entrar.</string>
+    <string name="error_forbidden">No tens permís per a fer aquesta acció.</string>
+    <string name="error_server">Error del servidor.</string>
+    <string name="error_server_with_id">Error del servidor. Codi per a l\'administrador: %1$s</string>
+    <string name="error_unexpected">S\'ha produït un error inesperat.</string>
+
+    <string name="action_retry">Torna-ho a provar</string>
+
+    <string name="estat_prestat">Prestat</string>
+    <string name="estat_no_retornat">No retornat</string>
+    <string name="estat_retornat">Retornat</string>
+
+    <plurals name="loans_count">
+        <item quantity="one">%d préstec</item>
+        <item quantity="other">%d préstecs</item>
+    </plurals>
+    <string name="loans_empty">No hi ha cap préstec.</string>
+    <string name="loans_empty_filtered">No hi ha cap préstec amb aquest filtre.</string>
+    <string name="loans_lent_at">Préstec: %1$s</string>
+    <string name="loans_returned_at">Devolució: %1$s</string>
+
+    <string name="history_title">Històric de préstecs</string>
+    <string name="loans_history">Històric</string>
+    <string name="loans_search_hint">Cerca portàtil, estudiant o professor</string>
+    <string name="loans_search_clear">Esborra la cerca</string>
+    <string name="loans_stat_active">Préstecs actius: %1$d</string>
+    <string name="loans_stat_overdue">No retornats: %1$d</string>
+    <string name="loans_no_carro">(sense carro)</string>
+    <string name="loans_none_active">No hi ha cap préstec actiu.</string>
+    <string name="loans_no_results">Cap resultat.</string>
+    <string name="loans_age_today">avui</string>
+    <plurals name="loans_age_days">
+        <item quantity="one">fa %d dia</item>
+        <item quantity="other">fa %d dies</item>
+    </plurals>
+    <plurals name="loans_carro_active">
+        <item quantity="one">%d actiu</item>
+        <item quantity="other">%d actius</item>
+    </plurals>
+    <plurals name="loans_carro_overdue">
+        <item quantity="one">%d no retornat</item>
+        <item quantity="other">%d no retornats</item>
+    </plurals>
+    <string name="loans_show_more">Mostra %1$d més</string>
+    <string name="loans_show_less">Mostra\'n menys</string>
+    <string name="loans_student">Estudiant</string>
+    <string name="loans_professor">Professor</string>
+    <string name="scanner_camera_unavailable">No s\'ha pogut obrir la càmera. Pots escriure el codi a mà.</string>
+    <string name="scanner_torch">Llanterna</string>
+    <string name="scanner_permission_rationale">Cal accés a la càmera per a llegir els codis QR dels portàtils i dels carnets.</string>
+    <string name="scanner_permission_allow">Permet la càmera</string>
+    <string name="scanner_permission_open_settings">Obre la configuració</string>
+    <string name="scanner_type_code">Escriu el codi</string>
+    <string name="scanner_manual_add">Afegeix</string>
+    <string name="action_confirm">Confirma</string>
+    <string name="action_cancel">Cancel·la</string>
+    <string name="action_discard">Descarta</string>
+
+    <string name="loan_step_portatil">Portàtil</string>
+    <string name="loan_step_estudiant">Estudiant</string>
+    <string name="loan_scan_portatil">Escaneja el portàtil</string>
+    <string name="loan_scan_estudiant">Escaneja el carnet</string>
+    <string name="loan_cancel_pending">Cancel·la aquest portàtil</string>
+    <string name="loan_batch_title">Préstecs per registrar: %1$d/%2$d</string>
+    <string name="loan_remove_row">Elimina %1$s</string>
+    <string name="loan_save">Guarda (%1$d)</string>
+    <plurals name="loan_confirm_text">
+        <item quantity="one">S\'enregistrarà %d préstec. Continuar?</item>
+        <item quantity="other">S\'enregistraran %d préstecs. Continuar?</item>
+    </plurals>
+    <string name="loan_discard_title">Descartar els préstecs?</string>
+    <string name="loan_discard_text">Els préstecs escanejats encara no s\'han guardat.</string>
+    <string name="loan_failed_rows_hint">Els préstecs que han fallat continuen a la llista.</string>
+
+    <string name="scan_portatil_available">%1$s disponible. Escaneja el carnet de l\'estudiant.</string>
+    <string name="scan_student_card">Això és un carnet d\'estudiant: escaneja un portàtil.</string>
+    <string name="scan_invalid_code">Codi de portàtil invàlid: %1$s</string>
+    <string name="scan_too_long">Codi massa llarg (màxim 100 caràcters).</string>
+    <string name="scan_already_in_batch">%1$s ja és a la llista.</string>
+    <string name="scan_already_lent">%1$s ja està prestat a %2$s.</string>
+    <string name="scan_student_is_laptop">Això és el portàtil: escaneja el carnet de l\'estudiant.</string>
+    <string name="scan_batch_full" tools:ignore="PluralsCandidate">Màxim %1$d per lot: guarda abans de continuar.</string>
+
+    <plurals name="result_prestec_success">
+        <item quantity="one">S\'ha registrat %d préstec.</item>
+        <item quantity="other">S\'han registrat %d préstecs.</item>
+    </plurals>
+    <string name="result_prestec_empty">No s\'ha enviat cap préstec.</string>
+    <string name="result_row_incomplete" tools:ignore="PluralsCandidate">Fila %1$d incompleta: cal el portàtil i l\'estudiant.</string>
+    <string name="result_row_too_long" tools:ignore="PluralsCandidate">Fila %1$d: hi ha valors massa llargs.</string>
+    <string name="result_portatil_format">Codi de portàtil invàlid: %1$s</string>
+    <string name="result_batch_duplicate">%1$s apareix més d\'una vegada.</string>
+    <string name="result_already_active">%1$s ja té un préstec actiu.</string>
+    <string name="no_active_loan">%1$s no té cap préstec actiu.</string>
+    <string name="return_batch_title" tools:ignore="PluralsCandidate">Devolucions: %1$d/%2$d</string>
+    <string name="return_save">Retorna (%1$d)</string>
+    <plurals name="return_confirm_text">
+        <item quantity="one">Es registrarà la devolució de %d portàtil. Continuar?</item>
+        <item quantity="other">Es registrarà la devolució de %d portàtils. Continuar?</item>
+    </plurals>
+    <plurals name="return_excluded_hint">
+        <item quantity="one">%d portàtil no s\'enviarà: no s\'ha pogut comprovar.</item>
+        <item quantity="other">%d portàtils no s\'enviaran: no s\'han pogut comprovar.</item>
+    </plurals>
+    <string name="return_discard_title">Descartar les devolucions?</string>
+    <string name="return_discard_text">Els portàtils escanejats encara no s\'han retornat.</string>
+    <string name="return_failed_hint">Els portàtils que han fallat continuen a la llista.</string>
+
+    <plurals name="result_devolucio_success">
+        <item quantity="one">S\'ha registrat la devolució de %d portàtil.</item>
+        <item quantity="other">S\'ha registrat la devolució de %d portàtils.</item>
+    </plurals>
+    <string name="result_devolucio_empty">No s\'ha enviat cap portàtil.</string>
+    <string name="result_too_long">Codi massa llarg: %1$s</string>
+    <string name="result_already_returned">%1$s ja s\'havia retornat.</string>
+    <string name="scanner_viewfinder_description">Càmera: apunta al codi QR</string>
+    <string name="lookup_checking">Comprovant</string>
+</resources>

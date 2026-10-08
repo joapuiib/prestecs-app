@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">Préstamos</string>
+    <string name="new_loan">Nuevo préstamo</string>
+    <string name="new_return">Nueva devolución</string>
+    <string name="action_back">Volver</string>
+    <string name="action_more">Más opciones</string>
+    <string name="action_log_out">Cerrar sesión</string>
+
+    <string name="environment_prod">Producción</string>
+    <string name="environment_staging">Pruebas</string>
+    <string name="environment_local">Local</string>
+
+    <string name="login_subtitle">Entra con tu usuario de Moodle.</string>
+    <string name="login_environment">Entorno</string>
+    <string name="login_username">Usuario</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_show_password">Mostrar la contraseña</string>
+    <string name="login_hide_password">Ocultar la contraseña</string>
+    <string name="login_submit">Entrar</string>
+    <string name="login_local_hint">Entorno local: no hace falta usuario ni contraseña.</string>
+    <string name="login_error_missing_fields">Escribe el usuario y la contraseña.</string>
+    <string name="login_error_invalid_credentials">El usuario o la contraseña no son correctos.</string>
+    <string name="login_error_moodle">Moodle: %1$s</string>
+
+    <string name="error_network">No se ha podido conectar con el servidor. Comprueba la conexión.</string>
+    <string name="error_unauthorized">La sesión ha caducado. Vuelve a entrar.</string>
+    <string name="error_forbidden">No tienes permiso para realizar esta acción.</string>
+    <string name="error_server">Error del servidor.</string>
+    <string name="error_server_with_id">Error del servidor. Código para el administrador: %1$s</string>
+    <string name="error_unexpected">Se ha producido un error inesperado.</string>
+
+    <string name="action_retry">Reintentar</string>
+
+    <string name="estat_prestat">Prestado</string>
+    <string name="estat_no_retornat">No devuelto</string>
+    <string name="estat_retornat">Devuelto</string>
+
+    <plurals name="loans_count">
+        <item quantity="one">%d préstamo</item>
+        <item quantity="many">%d préstamos</item>
+        <item quantity="other">%d préstamos</item>
+    </plurals>
+    <string name="loans_empty">No hay ningún préstamo.</string>
+    <string name="loans_empty_filtered">No hay ningún préstamo con este filtro.</string>
+    <string name="loans_lent_at">Préstamo: %1$s</string>
+    <string name="loans_returned_at">Devolución: %1$s</string>
+
+    <string name="history_title">Histórico de préstamos</string>
+    <string name="loans_history">Histórico</string>
+    <string name="loans_search_hint">Busca portátil, estudiante o profesor</string>
+    <string name="loans_search_clear">Borra la búsqueda</string>
+    <string name="loans_stat_active">Préstamos activos: %1$d</string>
+    <string name="loans_stat_overdue">No devueltos: %1$d</string>
+    <string name="loans_no_carro">(sin carro)</string>
+    <string name="loans_none_active">No hay ningún préstamo activo.</string>
+    <string name="loans_no_results">Ningún resultado.</string>
+    <string name="loans_age_today">hoy</string>
+    <plurals name="loans_age_days">
+        <item quantity="one">hace %d día</item>
+        <item quantity="many">hace %d días</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
+    <plurals name="loans_carro_active">
+        <item quantity="one">%d activo</item>
+        <item quantity="many">%d activos</item>
+        <item quantity="other">%d activos</item>
+    </plurals>
+    <plurals name="loans_carro_overdue">
+        <item quantity="one">%d no devuelto</item>
+        <item quantity="many">%d no devueltos</item>
+        <item quantity="other">%d no devueltos</item>
+    </plurals>
+    <string name="loans_show_more">Muestra %1$d más</string>
+    <string name="loans_show_less">Muestra menos</string>
+    <string name="loans_student">Estudiante</string>
+    <string name="loans_professor">Profesor</string>
+    <string name="scanner_camera_unavailable">No se ha podido abrir la cámara. Puedes escribir el código a mano.</string>
+    <string name="scanner_torch">Linterna</string>
+    <string name="scanner_permission_rationale">Hace falta acceso a la cámara para leer los códigos QR de los portátiles y de los carnés.</string>
+    <string name="scanner_permission_allow">Permitir la cámara</string>
+    <string name="scanner_permission_open_settings">Abrir la configuración</string>
+    <string name="scanner_type_code">Escribir el código</string>
+    <string name="scanner_manual_add">Añadir</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_cancel">Cancelar</string>
+    <string name="action_discard">Descartar</string>
+
+    <string name="loan_step_portatil">Portátil</string>
+    <string name="loan_step_estudiant">Estudiante</string>
+    <string name="loan_scan_portatil">Escanea el portátil</string>
+    <string name="loan_scan_estudiant">Escanea el carné</string>
+    <string name="loan_cancel_pending">Cancelar este portátil</string>
+    <string name="loan_batch_title">Préstamos por registrar: %1$d/%2$d</string>
+    <string name="loan_remove_row">Eliminar %1$s</string>
+    <string name="loan_save">Guardar (%1$d)</string>
+    <plurals name="loan_confirm_text">
+        <item quantity="one">Se registrará %d préstamo. ¿Continuar?</item>
+        <item quantity="many">Se registrarán %d préstamos. ¿Continuar?</item>
+        <item quantity="other">Se registrarán %d préstamos. ¿Continuar?</item>
+    </plurals>
+    <string name="loan_discard_title">¿Descartar los préstamos?</string>
+    <string name="loan_discard_text">Los préstamos escaneados aún no se han guardado.</string>
+    <string name="loan_failed_rows_hint">Los préstamos que han fallado siguen en la lista.</string>
+
+    <string name="scan_portatil_available">%1$s disponible. Escanea el carné del estudiante.</string>
+    <string name="scan_student_card">Eso es un carné de estudiante: escanea un portátil.</string>
+    <string name="scan_invalid_code">Código de portátil no válido: %1$s</string>
+    <string name="scan_too_long">Código demasiado largo (máximo 100 caracteres).</string>
+    <string name="scan_already_in_batch">%1$s ya está en la lista.</string>
+    <string name="scan_already_lent">%1$s ya está prestado a %2$s.</string>
+    <string name="scan_student_is_laptop">Eso es el portátil: escanea el carné del estudiante.</string>
+    <string name="scan_batch_full" tools:ignore="PluralsCandidate">Máximo %1$d por lote: guarda antes de continuar.</string>
+
+    <plurals name="result_prestec_success">
+        <item quantity="one">Se ha registrado %d préstamo.</item>
+        <item quantity="many">Se han registrado %d préstamos.</item>
+        <item quantity="other">Se han registrado %d préstamos.</item>
+    </plurals>
+    <string name="result_prestec_empty">No se ha enviado ningún préstamo.</string>
+    <string name="result_row_incomplete" tools:ignore="PluralsCandidate">Fila %1$d incompleta: hacen falta el portátil y el estudiante.</string>
+    <string name="result_row_too_long" tools:ignore="PluralsCandidate">Fila %1$d: hay valores demasiado largos.</string>
+    <string name="result_portatil_format">Código de portátil no válido: %1$s</string>
+    <string name="result_batch_duplicate">%1$s aparece más de una vez.</string>
+    <string name="result_already_active">%1$s ya tiene un préstamo activo.</string>
+    <string name="no_active_loan">%1$s no tiene ningún préstamo activo.</string>
+    <string name="return_batch_title" tools:ignore="PluralsCandidate">Devoluciones: %1$d/%2$d</string>
+    <string name="return_save">Devolver (%1$d)</string>
+    <plurals name="return_confirm_text">
+        <item quantity="one">Se registrará la devolución de %d portátil. ¿Continuar?</item>
+        <item quantity="many">Se registrará la devolución de %d portátiles. ¿Continuar?</item>
+        <item quantity="other">Se registrará la devolución de %d portátiles. ¿Continuar?</item>
+    </plurals>
+    <plurals name="return_excluded_hint">
+        <item quantity="one">%d portátil no se enviará: no se ha podido comprobar.</item>
+        <item quantity="many">%d portátiles no se enviarán: no se han podido comprobar.</item>
+        <item quantity="other">%d portátiles no se enviarán: no se han podido comprobar.</item>
+    </plurals>
+    <string name="return_discard_title">¿Descartar las devoluciones?</string>
+    <string name="return_discard_text">Los portátiles escaneados aún no se han devuelto.</string>
+    <string name="return_failed_hint">Los portátiles que han fallado siguen en la lista.</string>
+
+    <plurals name="result_devolucio_success">
+        <item quantity="one">Se ha registrado la devolución de %d portátil.</item>
+        <item quantity="many">Se ha registrado la devolución de %d portátiles.</item>
+        <item quantity="other">Se ha registrado la devolución de %d portátiles.</item>
+    </plurals>
+    <string name="result_devolucio_empty">No se ha enviado ningún portátil.</string>
+    <string name="result_too_long">Código demasiado largo: %1$s</string>
+    <string name="result_already_returned">%1$s ya se había devuelto.</string>
+    <string name="scanner_viewfinder_description">Cámara: apunta al código QR</string>
+    <string name="lookup_checking">Comprobando</string>
+</resources>

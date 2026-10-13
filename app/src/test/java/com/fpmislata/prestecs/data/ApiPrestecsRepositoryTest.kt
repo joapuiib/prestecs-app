@@ -42,7 +42,9 @@ class ApiPrestecsRepositoryTest {
         assertEquals(1, page.prestecs.size)
         with(page.prestecs.single()) {
             assertEquals(42L, id)
-            assertEquals("C1 - P01", portatil)
+            assertEquals("C2A4 - PC01", portatil)
+            assertEquals("C2A4", carro)
+            assertEquals("2A4", aula)
             assertEquals(Estat.PRESTAT, estat)
             assertNull(devolucioData)
         }
@@ -55,6 +57,18 @@ class ApiPrestecsRepositoryTest {
         assertEquals("prestat,no-retornat", request.url.queryParameter("estat"))
         assertEquals("2", request.url.queryParameter("page"))
         assertEquals("20", request.url.queryParameter("per_page"))
+    }
+
+    @Test
+    fun `a row without aula, from an older server, falls back to its carro`() = runBlocking {
+        backend.enqueue(200, LIST_BODY.replace(""""aula":"2A4",""", ""))
+
+        val result = repository.list(setOf(Estat.PRESTAT), page = 1, perPage = 20)
+
+        with((result as ApiResult.Success).value.prestecs.single()) {
+            assertEquals("C2A4", carro)
+            assertEquals("C2A4", aula)
+        }
     }
 
     @Test
@@ -198,7 +212,7 @@ class ApiPrestecsRepositoryTest {
 
         // Samples from the backend's API docs.
         const val LIST_BODY = """
-            {"prestecs":[{"id":42,"carro":"C1","portatil":"C1 - P01","estudiant":"Maria Garcia",
+            {"prestecs":[{"id":42,"carro":"C2A4","aula":"2A4","portatil":"C2A4 - PC01","estudiant":"Maria Garcia",
               "prestec_data":"2026-10-06 08:15:00","prestec_professor":"Nom Cognoms",
               "devolucio_data":null,"devolucio_professor":null,"estat":"prestat"}],
              "pagination":{"page":2,"per_page":20,"total":57,"total_pages":3}}"""

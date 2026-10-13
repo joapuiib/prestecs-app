@@ -5,9 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.core.network.ApiResult
 import com.fpmislata.prestecs.data.prestecs.PrestecsRepository
-import com.fpmislata.prestecs.domain.CarroGroup
+import com.fpmislata.prestecs.domain.AulaGroup
 import com.fpmislata.prestecs.domain.filterGroups
-import com.fpmislata.prestecs.domain.groupByCarro
+import com.fpmislata.prestecs.domain.groupByAula
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.time.Clock
 import java.time.LocalDate
@@ -21,8 +21,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class LoansUiState(
-    /** Every open loan, by carro. */
-    val groups: List<CarroGroup> = emptyList(),
+    /** Every open loan, by aula. */
+    val groups: List<AulaGroup> = emptyList(),
     val query: String = "",
     val onlyOverdue: Boolean = false,
     /** Loading, initially or on pull to refresh. */
@@ -32,7 +32,7 @@ data class LoansUiState(
     val error: ApiError? = null,
 ) {
     /** [groups] narrowed by the search and the overdue toggle. */
-    val visibleGroups: List<CarroGroup> get() = filterGroups(groups, query, onlyOverdue)
+    val visibleGroups: List<AulaGroup> get() = filterGroups(groups, query, onlyOverdue)
 
     /** Lent today. */
     val activeCount: Int get() = groups.sumOf { it.active }
@@ -45,7 +45,7 @@ data class LoansUiState(
 }
 
 /**
- * Home screen: open loans grouped by carro, as on the web. All of them are
+ * Home screen: open loans grouped by aula, as on the web. All of them are
  * loaded at once (they are few) and searched and filtered here.
  */
 @HiltViewModel
@@ -69,7 +69,7 @@ class LoansViewModel @Inject constructor(private val repository: PrestecsReposit
             _state.update { current ->
                 when (result) {
                     is ApiResult.Success -> current.copy(
-                        groups = groupByCarro(result.value, LocalDate.now(clock)),
+                        groups = groupByAula(result.value, LocalDate.now(clock)),
                         isRefreshing = false,
                         isLoaded = true,
                     )

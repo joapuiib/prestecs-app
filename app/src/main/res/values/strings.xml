@@ -51,7 +51,7 @@
     <string name="loans_search_clear">Esborra la cerca</string>
     <string name="loans_stat_active">Préstecs actius: %1$d</string>
     <string name="loans_stat_overdue">No retornats: %1$d</string>
-    <string name="loans_no_carro">(sense carro)</string>
+    <string name="loans_no_aula">(sense aula)</string>
     <string name="loans_none_active">No hi ha cap préstec actiu.</string>
     <string name="loans_no_results">Cap resultat.</string>
     <string name="loans_age_today">avui</string>
@@ -59,11 +59,11 @@
         <item quantity="one">fa %d dia</item>
         <item quantity="other">fa %d dies</item>
     </plurals>
-    <plurals name="loans_carro_active">
+    <plurals name="loans_aula_active">
         <item quantity="one">%d actiu</item>
         <item quantity="other">%d actius</item>
     </plurals>
-    <plurals name="loans_carro_overdue">
+    <plurals name="loans_aula_overdue">
         <item quantity="one">%d no retornat</item>
         <item quantity="other">%d no retornats</item>
     </plurals>

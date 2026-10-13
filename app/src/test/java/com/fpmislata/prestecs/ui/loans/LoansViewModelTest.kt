@@ -46,12 +46,12 @@ class LoansViewModelTest {
     }
 
     @Test
-    fun `refresh groups the open loans by carro`() {
+    fun `refresh groups the open loans by aula`() {
         serve(loan(1, "C2"), loan(2, "C1"), loan(3, "C1", Estat.NO_RETORNAT, date = "2026-10-05 08:00:00"))
 
         viewModel.refresh()
 
-        assertEquals(listOf("C1", "C2"), state.groups.map { it.carro })
+        assertEquals(listOf("C1", "C2"), state.groups.map { it.aula })
         assertEquals(2, state.activeCount)
         assertEquals(1, state.overdueCount)
         assertTrue(state.isLoaded)
@@ -106,7 +106,7 @@ class LoansViewModelTest {
         viewModel.refresh()
 
         assertEquals(ApiError.Network, state.error)
-        assertEquals(listOf("C1"), state.groups.map { it.carro })
+        assertEquals(listOf("C1"), state.groups.map { it.aula })
     }
 
     @Test
@@ -115,15 +115,15 @@ class LoansViewModelTest {
         viewModel.refresh()
 
         viewModel.onQueryChange("c1")
-        assertEquals(listOf("C1"), state.visibleGroups.map { it.carro })
+        assertEquals(listOf("C1"), state.visibleGroups.map { it.aula })
         assertTrue(state.isFiltering)
 
         viewModel.onQueryChange("")
         viewModel.toggleOnlyOverdue()
-        assertEquals(listOf("C2"), state.visibleGroups.map { it.carro })
+        assertEquals(listOf("C2"), state.visibleGroups.map { it.aula })
 
         viewModel.toggleOnlyOverdue()
-        assertEquals(listOf("C1", "C2"), state.visibleGroups.map { it.carro })
+        assertEquals(listOf("C1", "C2"), state.visibleGroups.map { it.aula })
         assertFalse(state.isFiltering)
         // The totals don't change with the filter.
         assertEquals(1, state.overdueCount)

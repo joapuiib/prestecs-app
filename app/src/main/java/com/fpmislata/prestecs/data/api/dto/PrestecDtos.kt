@@ -29,7 +29,16 @@ data class PrestecDto(
     @SerialName("devolucio_data") val devolucioData: String? = null,
     @SerialName("devolucio_professor") val devolucioProfessor: String? = null,
     val estat: Estat,
-)
+    /** Missing from servers older than the field: read [aula] instead. */
+    @SerialName("aula") val aulaOrNull: String? = null,
+) {
+    /**
+     * Classroom the laptop belongs to, whether fixed in the room (`2A4`) or
+     * kept in its cart (`C2A4`). Computed by the server, never here; without
+     * it, the carro.
+     */
+    val aula: String get() = aulaOrNull ?: carro
+}
 
 @Serializable
 data class PaginationDto(

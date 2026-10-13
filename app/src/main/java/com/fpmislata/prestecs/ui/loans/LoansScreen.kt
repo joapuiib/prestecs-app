@@ -64,9 +64,9 @@ import com.fpmislata.prestecs.core.config.Environment
 import com.fpmislata.prestecs.core.network.ApiError
 import com.fpmislata.prestecs.data.api.dto.Estat
 import com.fpmislata.prestecs.data.api.dto.PrestecDto
-import com.fpmislata.prestecs.domain.CarroGroup
+import com.fpmislata.prestecs.domain.AulaGroup
 import com.fpmislata.prestecs.domain.OpenLoan
-import com.fpmislata.prestecs.domain.groupByCarro
+import com.fpmislata.prestecs.domain.groupByAula
 import com.fpmislata.prestecs.ui.components.CenteredText
 import com.fpmislata.prestecs.ui.components.ErrorMessage
 import com.fpmislata.prestecs.ui.components.formatApiDate
@@ -244,21 +244,21 @@ private fun Cards(state: LoansUiState, onRetry: () -> Unit) {
             }
         }
 
-        items(groups, key = { it.carro }) { group ->
-            CarroCard(group = group, foldRows = !state.isFiltering)
+        items(groups, key = { it.aula }) { group ->
+            AulaCard(group = group, foldRows = !state.isFiltering)
         }
     }
 }
 
 @Composable
-private fun CarroCard(group: CarroGroup, foldRows: Boolean) {
-    var expanded by rememberSaveable(group.carro) { mutableStateOf(false) }
+private fun AulaCard(group: AulaGroup, foldRows: Boolean) {
+    var expanded by rememberSaveable(group.aula) { mutableStateOf(false) }
     val folded = foldRows && !expanded
     val shown = if (folded) group.loans.take(VISIBLE_ROWS) else group.loans
     val hidden = group.loans.size - VISIBLE_ROWS
 
     OutlinedCard(Modifier.fillMaxWidth()) {
-        CarroHeader(group)
+        AulaHeader(group)
         shown.forEach { loan ->
             HorizontalDivider()
             LoanRow(loan)
@@ -280,21 +280,21 @@ private fun CarroCard(group: CarroGroup, foldRows: Boolean) {
 }
 
 @Composable
-private fun CarroHeader(group: CarroGroup) {
+private fun AulaHeader(group: AulaGroup) {
     Row(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
         verticalAlignment = Alignment.Bottom,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text(
-            group.carro.ifEmpty { stringResource(R.string.loans_no_carro) },
+            group.aula.ifEmpty { stringResource(R.string.loans_no_aula) },
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.weight(1f),
         )
         val muted = MaterialTheme.colorScheme.onSurfaceVariant
         if (group.overdue > 0) {
             Text(
-                pluralStringResource(R.plurals.loans_carro_overdue, group.overdue, group.overdue),
+                pluralStringResource(R.plurals.loans_aula_overdue, group.overdue, group.overdue),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.error,
@@ -305,7 +305,7 @@ private fun CarroHeader(group: CarroGroup) {
         }
         if (group.active > 0) {
             Text(
-                pluralStringResource(R.plurals.loans_carro_active, group.active, group.active),
+                pluralStringResource(R.plurals.loans_aula_active, group.active, group.active),
                 style = MaterialTheme.typography.labelMedium,
                 color = muted,
             )
@@ -418,7 +418,7 @@ private fun OverflowMenu(onHistory: () -> Unit, onLogOut: () -> Unit) {
     }
 }
 
-private fun previewGroups() = groupByCarro(
+private fun previewGroups() = groupByAula(
     listOf(
         PrestecDto(
             1,

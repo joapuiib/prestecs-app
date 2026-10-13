@@ -9,8 +9,9 @@ import java.time.temporal.ChronoUnit
 data class OpenLoan(val prestec: PrestecDto, val ageDays: Int) {
     val isOverdue: Boolean get() = prestec.estat == Estat.NO_RETORNAT
 
-    /** Lowercase text the search matches against. Same fields as the web. */
+    /** Lowercase text the search matches against. */
     val searchText: String = listOf(
+        prestec.aula,
         prestec.carro,
         prestec.portatil,
         prestec.estudiant,
@@ -20,8 +21,8 @@ data class OpenLoan(val prestec: PrestecDto, val ageDays: Int) {
         .lowercase()
 }
 
-/** Open loans of one carro, oldest first. */
-data class CarroGroup(val carro: String, val loans: List<OpenLoan>) {
+/** Open loans of one classroom (its fixed laptops and its cart's), oldest first. */
+data class AulaGroup(val aula: String, val loans: List<OpenLoan>) {
     /** Lent today. */
     val active: Int get() = loans.count { !it.isOverdue }
 
@@ -30,29 +31,29 @@ data class CarroGroup(val carro: String, val loans: List<OpenLoan>) {
 }
 
 /**
- * The home screen's cards, as on the web: one group per carro in natural
+ * The home screen's cards, as on the web: one group per aula in natural
  * alphabetical order ("2A1" before "10B"), the oldest loan first inside each.
  * Returned loans are left out: they only appear in the history.
  */
-fun groupByCarro(prestecs: List<PrestecDto>, today: LocalDate): List<CarroGroup> = prestecs
+fun groupByAula(prestecs: List<PrestecDto>, today: LocalDate): List<AulaGroup> = prestecs
     .filter { it.estat != Estat.RETORNAT }
     .map { OpenLoan(it, ageDays(it.prestecData, today)) }
-    .groupBy { it.prestec.carro }
-    .map { (carro, loans) ->
-        CarroGroup(
-            carro = carro,
+    .groupBy { it.prestec.aula }
+    .map { (aula, loans) ->
+        AulaGroup(
+            aula = aula,
             loans = loans.sortedWith(compareBy<OpenLoan> { it.prestec.prestecData }.thenBy { it.prestec.id }),
         )
     }
-    .sortedWith { a, b -> naturalCompare(a.carro, b.carro) }
+    .sortedWith { a, b -> naturalCompare(a.aula, b.aula) }
 
 /**
  * Narrows [groups] like the web search: a loan stays if it matches [query]
- * (case-insensitive, anywhere in carro, laptop, student or teacher) and, with
+ * (case-insensitive, anywhere in aula, carro, laptop, student or teacher) and, with
  * [onlyOverdue], if it is not returned from a previous day. Groups left empty
  * disappear.
  */
-fun filterGroups(groups: List<CarroGroup>, query: String, onlyOverdue: Boolean): List<CarroGroup> {
+fun filterGroups(groups: List<AulaGroup>, query: String, onlyOverdue: Boolean): List<AulaGroup> {
     val needle = query.trim().lowercase()
     if (needle.isEmpty() && !onlyOverdue) return groups
     return groups.mapNotNull { group ->

@@ -52,7 +52,7 @@
     <string name="loans_search_clear">Borra la búsqueda</string>
     <string name="loans_stat_active">Préstamos activos: %1$d</string>
     <string name="loans_stat_overdue">No devueltos: %1$d</string>
-    <string name="loans_no_carro">(sin carro)</string>
+    <string name="loans_no_aula">(sin aula)</string>
     <string name="loans_none_active">No hay ningún préstamo activo.</string>
     <string name="loans_no_results">Ningún resultado.</string>
     <string name="loans_age_today">hoy</string>
@@ -61,12 +61,12 @@
         <item quantity="many">hace %d días</item>
         <item quantity="other">hace %d días</item>
     </plurals>
-    <plurals name="loans_carro_active">
+    <plurals name="loans_aula_active">
         <item quantity="one">%d activo</item>
         <item quantity="many">%d activos</item>
         <item quantity="other">%d activos</item>
     </plurals>
-    <plurals name="loans_carro_overdue">
+    <plurals name="loans_aula_overdue">
         <item quantity="one">%d no devuelto</item>
         <item quantity="many">%d no devueltos</item>
         <item quantity="other">%d no devueltos</item>

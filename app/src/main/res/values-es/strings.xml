@@ -82,6 +82,7 @@
     <string name="scanner_permission_open_settings">Abrir la configuración</string>
     <string name="scanner_type_code">Escribir el código</string>
     <string name="scanner_manual_add">Añadir</string>
+    <string name="scanner_paused">Entrada manual activa</string>
     <string name="action_confirm">Confirmar</string>
     <string name="action_cancel">Cancelar</string>
     <string name="action_discard">Descartar</string>

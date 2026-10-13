@@ -58,13 +58,19 @@ import kotlinx.coroutines.awaitCancellation
  * [onScan] gets the trimmed text of each new code, on the main thread. The same
  * code is reported once while it stays in view (see [ScanDebouncer]). While
  * [enabled] is false, codes are ignored but the preview keeps running.
+ * [paused] also ignores codes, for longer: the preview is greyed out to show it.
  */
 @Composable
-fun QrScanner(onScan: (String) -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
+fun QrScanner(
+    onScan: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    paused: Boolean = false,
+) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentOnScan by rememberUpdatedState(onScan)
-    val currentEnabled by rememberUpdatedState(enabled)
+    val currentEnabled by rememberUpdatedState(enabled && !paused)
     val debouncer = remember { ScanDebouncer() }
 
     var surfaceRequest by remember { mutableStateOf<SurfaceRequest?>(null) }
@@ -140,7 +146,15 @@ fun QrScanner(onScan: (String) -> Unit, modifier: Modifier = Modifier, enabled: 
             CameraXViewfinder(surfaceRequest = request, modifier = Modifier.fillMaxSize())
         }
 
-        if (cameraFailed) {
+        if (paused) {
+            Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.4f)))
+            Text(
+                stringResource(R.string.scanner_paused),
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(24.dp),
+            )
+        } else if (cameraFailed) {
             Text(
                 stringResource(R.string.scanner_camera_unavailable),
                 color = Color.White,

@@ -78,6 +78,7 @@
     <string name="scanner_permission_open_settings">Obre la configuració</string>
     <string name="scanner_type_code">Escriu el codi</string>
     <string name="scanner_manual_add">Afegeix</string>
+    <string name="scanner_paused">Entrada manual activa</string>
     <string name="action_confirm">Confirma</string>
     <string name="action_cancel">Cancel·la</string>
     <string name="action_discard">Descarta</string>

@@ -11,13 +11,22 @@ its JSON API.
 
 ## Features
 
-- **Sign in** with the Moodle account (Moodle mobile token, no password stored).
-- **Loan list**: paginated, newest first, filterable by state
-  (`prestat`, `no-retornat`, `retornat`).
-- **New loan**: scan a laptop → check it is available → scan the student card →
-  repeat; then confirm and register the whole batch.
-- **New return**: scan laptops one after another, see who had each one, then
-  confirm and register the batch.
+- **Sign in** with the Moodle account. The app keeps only a Moodle mobile token,
+  encrypted with an Android Keystore key; the password is never stored.
+- **Loans (home)**: open loans grouped by carro in cards, as on the web: oldest
+  first, counts of *actius* and *no retornats* per carro, long cards folded behind
+  *Mostra N més*. Search by laptop, student or teacher, and tap *No retornats* to
+  show only those. Pull to refresh.
+- **Històric** (overflow menu): every loan, newest first, 50 per page (more load at the end of the
+  list), filter by state (*Prestat*, *No retornat*, *Retornat*).
+- **New loan**: scan a laptop (checked: code format, not already in the batch,
+  not already lent) → scan the student card → repeat; then confirm and save the
+  batch (up to 50). Rows that fail stay in the list with the reason.
+- **New return**: scan laptops one after another; each is looked up at once to
+  show who has it. Laptops without an active loan are left out; confirm and save.
+- Scanning with the phone camera (CameraX + ML Kit, works offline), beep and
+  vibration per scan, flashlight, and a field to type unreadable codes.
+- Valencian and Spanish (per-app language on Android 13+), light and dark theme.
 
 ## Backend API
 
@@ -58,12 +67,74 @@ Hilt · Coroutines/Flow.
 
 ## Building
 
-Requirements: Android Studio (latest stable), JDK 17, Android SDK 36.
+Requirements: JDK 17+ and the Android SDK (platform 37). Android Studio
+(latest stable) provides both; on the command line, point `local.properties`
+to the SDK (`sdk.dir=/path/to/Android/Sdk`) or set `ANDROID_HOME`.
+
+The app has two distribution flavors: `github` (signed APK published on GitHub
+Releases) and `play` (bundle for Google Play).
 
 ```sh
-./gradlew assembleDebug        # build debug APK
-./gradlew test                 # unit tests
-./gradlew connectedCheck       # instrumented tests (device/emulator needed)
+./gradlew assembleGithubDebug      # debug APK → app/build/outputs/apk/github/debug/
+./gradlew testGithubDebugUnitTest  # unit tests
+./gradlew lintGithubDebug          # lint
+./gradlew spotlessApply            # format Kotlin (ktlint); spotlessCheck to verify
 ```
 
-Debug builds point to staging by default; release builds point to production.
+Debug builds install as `com.fpmislata.prestecs.debug`, next to the release app.
+
+## Development
+
+### Environments
+
+Release builds always use production. Debug builds start on staging and have
+an environment picker on the login screen:
+
+| Environment | Backend | Login |
+|---|---|---|
+| Producció | production `prestecs/api/` | Moodle account |
+| Proves | staging `prestecs/api/` | Moodle account |
+| Local | `http://10.0.2.2:8000/www/prestecs/api/` | none (fixed token `mock-ws-token`) |
+
+For **Local**, run the backend from `fpmislata-aplicacions` with
+`docker compose up -d aplicacions` (see that repo's README for the first-time
+database setup; note that its `bin/setup-dev.sh` recreates the schemas).
+`10.0.2.2` is the host machine as seen from the Android emulator; on a real
+phone, change the URL in `core/config/Environment.kt` to the PC's LAN address.
+Plain HTTP is only allowed in debug builds.
+
+### Code layout
+
+```
+app/src/main/java/com/fpmislata/prestecs/
+  core/      environments, session and encrypted token, API result/error mapping
+  data/      Retrofit services and DTOs, auth and prestecs repositories
+  domain/    laptop code and student card QR rules (same as the web)
+  ui/        Compose screens: login, loans list, new loan, new return,
+             scanner (camera, permission, typed entry), shared batch UI
+```
+
+Screens follow the same rules as the web forms (`prestec.js`, `devolucio.js`)
+in the backend repository.
+
+## Releases
+
+Release versions come from the git tag: `./gradlew -PappVersion=1.2.3 ...`
+gives version name `1.2.3` and version code `10203`, shared by both flavors.
+
+Release builds are signed when these environment variables are set (otherwise
+they are built unsigned):
+
+| Variable | Value |
+|---|---|
+| `PRESTECS_KEYSTORE_FILE` | path to the release keystore (`.jks`) |
+| `PRESTECS_KEYSTORE_PASSWORD` | keystore password |
+| `PRESTECS_KEY_ALIAS` | key alias |
+| `PRESTECS_KEY_PASSWORD` | key password |
+
+Never commit the keystore. The same key must sign every GitHub release and,
+later, be uploaded to Google Play (Play App Signing → use existing key), or
+installed apps can't be updated. See `PLAN.md` §1.2.
+
+The GitHub APK includes only ARM libraries (all real phones); debug builds
+and the Play bundle keep every ABI.
